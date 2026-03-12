@@ -1,4 +1,4 @@
-# SIGER PRO v2.0
+# SIGER PRO v1.0
 ### Sistema de Gestión de Riesgos — AIES-SOARG / CEPA · El Salvador
 
 Aplicación web de gestión y evaluación de riesgos aeroportuarios desarrollada para la Comisión Ejecutiva Portuaria Autónoma (CEPA), basada en el modelo AIES-SOARG.
