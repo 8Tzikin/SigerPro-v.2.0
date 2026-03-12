@@ -1,0 +1,27 @@
+# Editor / IDE
+.vscode/
+.idea/
+*.suo
+*.user
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+
+# Temp files
+*.tmp
+*.bak
+*.swp
+
+# Node (if ever adding build tools)
+node_modules/
+npm-debug.log*
+package-lock.json
+
+# Python server cache
+__pycache__/
+*.pyc
