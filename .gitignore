@@ -1,27 +1,29 @@
-# Editor / IDE
+# Sistema operativo
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editores
 .vscode/
 .idea/
-*.suo
-*.user
+*.swp
+*.swo
+*~
 
-# OS
-.DS_Store
-Thumbs.db
-desktop.ini
-
-# Logs
-*.log
-
-# Temp files
+# Temporales
 *.tmp
 *.bak
-*.swp
+*.log
 
-# Node (if ever adding build tools)
+# Node (si se usa servidor local)
 node_modules/
 npm-debug.log*
-package-lock.json
 
-# Python server cache
-__pycache__/
-*.pyc
+# Datos locales exportados (no subir datos sensibles)
+*.csv
+*.xlsx
+!plantilla_*.csv
