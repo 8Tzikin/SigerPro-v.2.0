@@ -1,6 +1,6 @@
 # SIGER PRO v2.0 — Sistema de Gestión de Riesgos
 
-**AIES-SOARG / CEPA · 2026**
+**AIES-SOARG / CEPA · El Salvador · 2026**
 
 Sistema web de gestión de riesgos de seguridad operacional para el Aeropuerto Internacional El Salvador (AIES-SOARG), desarrollado para la Comisión Ejecutiva Portuaria Autónoma (CEPA).
 
@@ -10,13 +10,14 @@ Sistema web de gestión de riesgos de seguridad operacional para el Aeropuerto I
 
 - **Registro de Reportes** — Captura completa de eventos de seguridad operacional con todos los campos del formato OACI/SMS.
 - **Evaluación de Riesgo** — Matriz de Riesgo OACI/SMS con índices de probabilidad (1–5) y severidad (A–E).
-- **Indicadores de Impacto** — Gauges de alto y bajo impacto con análisis estadístico (desviación estándar σ, UCL, LCL).
+- **Indicadores de Impacto** — Gauges de alto y bajo impacto con análisis estadístico (σ, UCL, LCL). Las selecciones se guardan automáticamente.
 - **Datos Históricos** — Carga de datos de años anteriores para enriquecer el cálculo estadístico.
-- **Exportar PDF (Formato RSC)** — Generación de reporte oficial con logo CEPA, firmas y todos los campos.
+- **Exportar PDF (Formato RSC)** — Generación de reporte oficial con logo CEPA, datos completos y firmas.
 - **Base Normativa** — Tabla de regulaciones RAC y normativa AIES-SOARG con auto-relleno en nuevos reportes.
-- **Autoguardado** — Persistencia local automática (localStorage) con indicador visual de estado.
-- **Roles de usuario** — Superadministrador, Administrador y Auditor con permisos diferenciados.
-- **Importar / Exportar** — Soporte para archivos `.xlsx` y `.csv` con el mismo formato de la base de datos.
+- **Autoguardado** — Persistencia automática en localStorage con indicador visual de estado.
+- **Respaldo en D:\\** — Respaldo automático en carpeta local usando File System Access API (Chrome/Edge).
+- **Roles de usuario** — Superadministrador, Administrador y Auditor con permisos diferenciados. Usuarios persistidos en localStorage.
+- **Importar / Exportar** — Soporte para archivos `.xlsx` y `.csv`.
 - **Versiones / Snapshots** — Guardar y restaurar versiones nombradas de la base de datos.
 - **Menú hamburguesa** — Sidebar ocultable para maximizar el espacio de trabajo.
 
@@ -26,53 +27,61 @@ Sistema web de gestión de riesgos de seguridad operacional para el Aeropuerto I
 
 ```
 sigerpro/
-├── index.html        # Aplicación completa (single-file app, sin dependencias externas)
-├── README.md         # Documentación
-├── .gitignore        # Archivos a ignorar
-└── LICENSE           # Licencia del proyecto
+├── index.html     # Aplicación completa (single-file, sin dependencias externas)
+├── README.md      # Documentación
+├── .gitignore     # Archivos a ignorar
+└── LICENSE        # Licencia del proyecto
 ```
 
-> **Sin dependencias externas.** Toda la lógica (gráficas, lectura de XLSX, exportación CSV, generación de PDF) está implementada en JavaScript puro dentro del archivo `index.html`.
+> **Sin dependencias externas.** Gráficas, lectura de XLSX, exportación CSV, generación de PDF y respaldo local están implementados en JavaScript puro dentro de `index.html`.
+
+---
+
+## 🖥️ Tecnologías utilizadas
+
+| Tecnología | Uso |
+|-----------|-----|
+| **HTML5** | Estructura de interfaz, formularios, modales |
+| **CSS3** | Diseño visual con identidad CEPA, variables CSS, Grid, Flexbox |
+| **JavaScript ES6+** | Toda la lógica de negocio, sin frameworks externos |
+| **Canvas API** | Gráficas de barras, dona y gauges |
+| **localStorage** | Persistencia de datos, usuarios e indicadores |
+| **File System Access API** | Respaldo automático en unidad local (D:\\) |
+| **IBM Plex Sans/Mono** | Tipografía institucional (Google Fonts) |
 
 ---
 
 ## 🖥️ Uso
 
 ### Ejecución local
-Simplemente abrir `index.html` en cualquier navegador moderno (Chrome, Edge, Firefox).
+Abrir `index.html` en Chrome o Edge:
 
 ```bash
-# Opción 1: doble clic en el archivo
-open index.html
-
-# Opción 2: servidor local rápido con Python
+# Doble clic en el archivo, o con servidor local:
 python3 -m http.server 8080
-# Luego visitar http://localhost:8080
+# Visitar http://localhost:8080
 ```
 
-### GitHub Pages (publicación en línea)
+### GitHub Pages
 1. Subir el repositorio a GitHub.
-2. Ir a **Settings → Pages**.
-3. Seleccionar rama `main` y carpeta raíz `/`.
-4. La aplicación estará disponible en `https://<usuario>.github.io/<repositorio>/`.
+2. Ir a **Settings → Pages → Branch: main → Save**.
+3. Disponible en `https://<usuario>.github.io/<repositorio>/`.
 
 ---
 
 ## 🔐 Credenciales por defecto
 
-| Usuario | Email | Contraseña | Rol |
-|---------|-------|------------|-----|
-| Noé López | `noe.lopez@cepa.gob.sv` | `cepa2026` | Superadministrador |
-| María García | `maria.garcia@cepa.gob.sv` | `cepa2026` | Administrador |
-| Carlos Auditor | `carlos.auditor@cepa.gob.sv` | `auditor123` | Auditor |
+| Email | Contraseña | Rol |
+|-------|-----------|-----|
+| `noe.lopez@cepa.gob.sv` | `cepa2026` | Superadministrador |
+| `maria.garcia@cepa.gob.sv` | `cepa2026` | Administrador |
+| `carlos.auditor@cepa.gob.sv` | `auditor123` | Auditor |
 
-> ⚠️ Se recomienda cambiar las contraseñas en producción desde la sección **Gestión de Usuarios**.
+> ⚠️ Cambiar contraseñas desde **Gestión de Usuarios** al desplegar en producción.
 
 ---
 
-## 📋 Formato de importación
-
-El sistema acepta archivos `.xlsx` o `.csv` con las siguientes columnas principales:
+## 📋 Formato de importación (Excel/CSV)
 
 | Columna | Descripción |
 |---------|-------------|
@@ -80,41 +89,37 @@ El sistema acepta archivos `.xlsx` o `.csv` con las siguientes columnas principa
 | `FECHA` | Fecha del evento (YYYY-MM-DD o DD/MM/YYYY) |
 | `TIPO DE OCURRENCIA/PELIGRO` | Tipo de evento |
 | `REPORTE PRESENTADO POR:` | Nombre del reportante |
-| `ENTIDAD DE ORIGEN DE REPORTE` | Entidad que reporta |
 | `PROBABILIDAD DE RIESGO` | Valor 1–5 |
 | `SEVERIDAD DE RIESGO` | Letra A–E |
 | `ESTADO` | `CIERRE` o `SEGUIMIENTO` |
-
-Descargar plantilla desde la sección **Importar Excel → Descargar Plantilla**.
-
----
-
-## 🔧 Módulos técnicos
-
-| Módulo | Tecnología |
-|--------|-----------|
-| Interfaz | HTML5 + CSS3 (Variables CSS, Grid, Flexbox) |
-| Lógica | JavaScript ES6+ (vanilla, sin frameworks) |
-| Gráficas | Canvas API personalizado (sin Chart.js) |
-| Lectura XLSX | Parser ZIP/XML propio (sin SheetJS) |
-| Exportación | CSV con BOM UTF-8 (compatible Excel) |
-| PDF | `window.print()` con CSS `@media print` |
-| Persistencia | `localStorage` del navegador |
-| Tipografía | IBM Plex Sans + IBM Plex Mono (Google Fonts) |
 
 ---
 
 ## 📊 Matriz de Riesgo OACI/SMS
 
 | | A Catastrófico | B Peligroso | C Mayor | D Menor | E Insignificante |
-|---|---|---|---|---|---|
+|---|:---:|:---:|:---:|:---:|:---:|
 | **5 Frecuente** | 🔴 | 🔴 | 🔴 | 🟡 | 🟡 |
 | **4 Ocasional** | 🔴 | 🔴 | 🟡 | 🟡 | 🟡 |
-| **3 Remoto** | 🔴 | 🟡 | 🟡 | 🟢 | 🟢 |
+| **3 Remoto** | 🔴 | 🟡 | 🟡 | 🟡 | 🟢 |
 | **2 Improbable** | 🟡 | 🟡 | 🟡 | 🟢 | 🟢 |
 | **1 S. Improbable** | 🟡 | 🟢 | 🟢 | 🟢 | 🟢 |
 
 🔴 Intolerable · 🟡 Tolerable · 🟢 Aceptable
+
+---
+
+## 🗄️ Almacenamiento de datos
+
+Todos los datos se guardan en el navegador mediante `localStorage`:
+
+| Clave | Contenido |
+|-------|-----------|
+| `sigerpro_db_v1` | Reportes de evaluación de riesgo |
+| `sigerpro_users_v1` | Usuarios del sistema |
+| `sigerpro_historical_v1` | Datos históricos por año |
+| `sigerpro_snapshots_idx` | Índice de versiones guardadas |
+| `sigerpro_ind_prefs_v1` | Selecciones de indicadores |
 
 ---
 
@@ -126,4 +131,4 @@ Descargar plantilla desde la sección **Importar Excel → Descargar Plantilla**
 
 ## 📄 Licencia
 
-Este software es de uso interno institucional. Todos los derechos reservados © CEPA 2026.
+Uso interno institucional. Todos los derechos reservados © CEPA 2026.

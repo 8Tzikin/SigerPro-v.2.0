@@ -558,11 +558,11 @@ select.form-input option { background: var(--bg2); }
     <div id="login-err" class="alert a-error hidden"></div>
     <div class="form-group">
       <label class="form-label">Usuario</label>
-      <input id="l-user" class="form-input" type="text" placeholder="noe.lopez@cepa.gob.sv" value="admin">
+      <input id="l-user" class="form-input" type="text" placeholder="usuario@cepa.gob.sv">
     </div>
     <div class="form-group">
       <label class="form-label">Contraseña</label>
-      <input id="l-pwd" class="form-input" type="password" placeholder="••••••••" value="cepa2026">
+      <input id="l-pwd" class="form-input" type="password" placeholder="••••••••">
     </div>
     <button class="btn btn-primary" style="width:100%;justify-content:center;padding:10px;font-size:13px;margin-top:4px" onclick="doLogin()">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
@@ -643,6 +643,11 @@ select.form-input option { background: var(--bg2); }
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
           Datos Históricos
           <span class="nav-badge" id="nb-hist" style="background:#0d9488">0</span>
+        </button>
+        <button class="nav-item" onclick="abrirBackupUnidad()" style="border-left-color:#0d9488">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z"/></svg>
+          Respaldo en D:\
+          <span id="nb-backup-ok" style="margin-left:auto;font-size:9px;display:none;color:#0d9488">✓</span>
         </button>
       </div>
       <div class="nav-section" id="nav-admin-section">
@@ -1681,6 +1686,29 @@ const CEPA_LOGO_B64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUoAAAB7CAY
 const SNAP_INDEX_KEY   = 'sigerpro_snapshots_idx';
 const SNAP_DATA_PREFIX = 'sigerpro_snap_';
 const HIST_DB_KEY      = 'sigerpro_historical_v1';
+const USERS_STORAGE_KEY = 'sigerpro_users_v1';
+
+function saveUsers() {
+  try {
+    const data = JSON.stringify(USERS);
+    localStorage.setItem(USERS_STORAGE_KEY, data);
+    // Verificar que se guardó correctamente
+    const verify = localStorage.getItem(USERS_STORAGE_KEY);
+    if (!verify) console.warn('saveUsers: no se pudo verificar el guardado');
+  } catch(e) {
+    console.error('saveUsers error:', e);
+  }
+}
+function loadUsers() {
+  try {
+    const saved = localStorage.getItem(USERS_STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length) return parsed;
+    }
+  } catch(e) { console.error('loadUsers error:', e); }
+  return null;
+}
 
 function saveHistoricalDB() {
   try { localStorage.setItem(HIST_DB_KEY, JSON.stringify(HISTORICAL_DB)); } catch(e) {
@@ -1881,9 +1909,11 @@ setInterval(function() {
 // ── GUARDAR AL CERRAR pestaña / ventana ────────────────────────────────────
 window.addEventListener('beforeunload', function() {
   if (currentUser) {
-    // Guardado síncrono inmediato antes del cierre
     try { localStorage.setItem(DB_STORAGE_KEY, JSON.stringify(DB)); } catch(e) {}
     try { localStorage.setItem('sigerpro_last_save', new Date().toISOString()); } catch(e) {}
+    _saveIndPrefs();
+    // Respaldo en D:\ al cerrar ventana
+    if (_backupDirHandle) _writeBackupFile();
   }
 });
 let currentPage = 1;
@@ -1893,11 +1923,14 @@ let importRows = [];
 let currentUser = null;
 
 // ─── USERS STORE ───────────────────────────────
-let USERS = [
-  {idx:0, nombre:'Noé López', email:'noe.lopez@cepa.gob.sv', username:'admin', password:'cepa2026', rol:'superadmin', creado:'2026-01-01'},
-  {idx:1, nombre:'María García', email:'maria.garcia@cepa.gob.sv', username:'maria.garcia', password:'cepa2026', rol:'admin', creado:'2026-01-15'},
-  {idx:2, nombre:'Carlos Auditor', email:'carlos.auditor@cepa.gob.sv', username:'auditor', password:'auditor123', rol:'auditor', creado:'2026-02-01'}
+const DEFAULT_USERS = [
+  {idx:0, nombre:'Noé López', email:'noe.lopez@cepa.gob.sv', username:'noe.lopez@cepa.gob.sv', password:'cepa2026', rol:'superadmin', creado:'2026-01-01'},
+  {idx:1, nombre:'María García', email:'maria.garcia@cepa.gob.sv', username:'maria.garcia@cepa.gob.sv', password:'cepa2026', rol:'admin', creado:'2026-01-15'},
+  {idx:2, nombre:'Carlos Auditor', email:'carlos.auditor@cepa.gob.sv', username:'carlos.auditor@cepa.gob.sv', password:'auditor123', rol:'auditor', creado:'2026-02-01'}
 ];
+let USERS = loadUsers() || JSON.parse(JSON.stringify(DEFAULT_USERS));
+// Si no había usuarios guardados, guardar los por defecto ahora
+if (!localStorage.getItem(USERS_STORAGE_KEY)) saveUsers();
 
 // Permission helpers
 function canEdit()       { return currentUser && (currentUser.rol==='superadmin'||currentUser.rol==='admin'); }
@@ -1917,6 +1950,11 @@ function doLogin() {
   const p = document.getElementById('l-pwd').value;
   const err = document.getElementById('login-err');
   if (!u || !p) { err.textContent='Completa los campos.'; err.classList.remove('hidden'); return; }
+
+  // Recargar usuarios desde localStorage en cada intento — garantiza que nuevos usuarios sean visibles
+  const savedUsers = loadUsers();
+  if (savedUsers && savedUsers.length) USERS = savedUsers;
+
   const user = USERS.find(x => (x.username.toLowerCase()===u || x.email.toLowerCase()===u) && x.password===p);
   if (user) {
     currentUser = user;
@@ -1958,7 +1996,10 @@ function vaciarBase() {
 }
 
 function doLogout() {
-  saveDB(); // guardar antes de cerrar sesión
+  saveDB();
+  _saveIndPrefs();
+  saveUsers();
+  if (_backupDirHandle) _writeBackupFile(); // respaldo final en D:\
   currentUser = null;
   // Reset login form
   document.getElementById('l-user').value = '';
@@ -2369,6 +2410,65 @@ function drawGauge(canvas, value, maxVal, label) {
 // ── INDICATOR STATE ─────────────────────────────────────────────────────────
 let _indState = { active:[], total:1, altoTypes:{}, bajoTypes:{}, maxGauge:10 };
 
+// ── Persistencia de selecciones de indicadores ────────────────────────────────
+const IND_PREF_KEY = 'sigerpro_ind_prefs_v1';
+
+function _saveIndPrefs() {
+  const prefs = {};
+  ['alto','bajo'].forEach(function(sec) {
+    const qtySel = document.getElementById('qty-'+sec);
+    const qty = qtySel ? (parseInt(qtySel.value) || 0) : 0;
+    const chosen = [];
+    for (var i = 0; i < qty; i++) {
+      const s = document.getElementById('ind-slot-'+sec+'-'+i);
+      chosen.push(s ? s.value : '');
+    }
+    prefs[sec] = { qty: qty, chosen: chosen };
+  });
+  try { localStorage.setItem(IND_PREF_KEY, JSON.stringify(prefs)); } catch(e) {}
+}
+
+function _loadIndPrefs() {
+  try {
+    const raw = localStorage.getItem(IND_PREF_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch(e) { return null; }
+}
+
+function _restoreIndPrefs(prefs) {
+  if (!prefs) return;
+  ['alto','bajo'].forEach(function(sec) {
+    const pref = prefs[sec];
+    if (!pref || !pref.qty) return;
+    const qtySel = document.getElementById('qty-'+sec);
+    if (!qtySel) return;
+
+    // Verificar que la cantidad esté disponible como opción
+    let found = false;
+    for (var k = 0; k < qtySel.options.length; k++) {
+      if (parseInt(qtySel.options[k].value) === pref.qty) { found = true; break; }
+    }
+    if (!found) return;
+
+    qtySel.value = pref.qty;
+    indSetQty(sec, true); // construye los slots sin guardar prefs
+
+    // Asignar valores a los slots una vez construidos (síncrono)
+    const chosen = pref.chosen || [];
+    chosen.forEach(function(val, i) {
+      const s = document.getElementById('ind-slot-' + sec + '-' + i);
+      if (s && val) {
+        // Verificar que el valor existe como opción
+        for (var j = 0; j < s.options.length; j++) {
+          if (s.options[j].value === val) { s.value = val; break; }
+        }
+      }
+    });
+    // Renderizar gauges con los valores restaurados
+    _indRender(sec);
+  });
+}
+
 // ── Step 1: populate the "how many" selector ─────────────────────────────────
 function _indPopulateQty(sec, typesObj) {
   const sel = document.getElementById('qty-'+sec);
@@ -2389,7 +2489,7 @@ function _indPopulateQty(sec, typesObj) {
 }
 
 // ── Step 2: user chose a quantity → render individual dropdowns ───────────────
-function indSetQty(sec) {
+function indSetQty(sec, silent) {
   var qty = parseInt(document.getElementById('qty-'+sec).value) || 0;
   var typesObj = sec === 'alto' ? _indState.altoTypes : _indState.bajoTypes;
   var entries  = Object.entries(typesObj).sort(function(a,b){ return b[1]-a[1]; });
@@ -2401,6 +2501,7 @@ function indSetQty(sec) {
     document.getElementById('gauges-'+sec).innerHTML =
       '<div style="padding:24px;color:#7a8fa8;font-size:13px;text-align:center;width:100%">Seleccione cuántos indicadores desea analizar</div>';
     _indUpdateBadge(sec, 0, total);
+    if (!silent) _saveIndPrefs();
     return;
   }
 
@@ -2426,7 +2527,12 @@ function indSetQty(sec) {
       o.textContent = kv[0] + ' (' + kv[1] + ')';
       sel.appendChild(o);
     });
-    (function(s, slotSel){ slotSel.addEventListener('change', function(){ _indRender(s); }); })(sec, sel);
+    (function(s, slotSel){
+      slotSel.addEventListener('change', function(){
+        _indRender(s);
+        _saveIndPrefs();
+      });
+    })(sec, sel);
 
     slot.appendChild(lbl);
     slot.appendChild(sel);
@@ -2437,6 +2543,7 @@ function indSetQty(sec) {
   document.getElementById('gauges-'+sec).innerHTML =
     '<div style="padding:24px;color:#7a8fa8;font-size:13px;text-align:center;width:100%">Elija los indicadores en cada slot para visualizarlos</div>';
   _indUpdateBadge(sec, 0, total);
+  if (!silent) _saveIndPrefs();
 }
 
 // ── Step 3: read slots and render gauges ─────────────────────────────────────
@@ -2618,6 +2725,9 @@ function renderIndicadores() {
   _indPopulateQty('alto', altoTypes);
   _indPopulateQty('bajo', bajoTypes);
 
+  // Restaurar selecciones guardadas
+  _restoreIndPrefs(_loadIndPrefs());
+
   const byMonth = {};
   active.forEach(r => {
     if (r.fecha && r.fecha.length >= 7) {
@@ -2638,8 +2748,8 @@ function renderIndicadores() {
   mkChart('ch-ind-riesgo','doughnut',
     ['INTOLERABLE','TOLERABLE','ACEPTABLE'],
     [{data:[lvlCount.critical,lvlCount.medium,lvlCount.low],
-      backgroundColor:['#ca8a04','#dc2626','#16a34a'],
-      borderColor:['#a16207','#b91c1c','#15803d'], borderWidth:2}],
+      backgroundColor:['#dc2626','#ca8a04','#16a34a'],
+      borderColor:['#b91c1c','#a16207','#15803d'], borderWidth:2}],
     {plugins:{legend:{position:'bottom',labels:{color:'#1a2540',font:{size:11}}}}}
   );
 }
@@ -3854,6 +3964,7 @@ function guardarUsuario() {
     toast('Usuario actualizado.','ok');
   }
   closeModal('m-usuario');
+  saveUsers();
   renderUsuarios();
 }
 
@@ -3864,6 +3975,7 @@ function eliminarUsuario(idx) {
   if (u.email === currentUser.email) { toast('No puedes eliminar tu propio usuario.','err'); return; }
   if (!confirm(`¿Eliminar usuario "${u.nombre}" (${u.email})?`)) return;
   USERS.splice(idx, 1);
+  saveUsers();
   renderUsuarios();
   toast('Usuario eliminado.','ok');
 }
@@ -4119,6 +4231,136 @@ function _showHistErr(msg) {
 }
 
 // ═══════════════════════════════════════════════
+// RESPALDO EN UNIDAD D:\
+// ═══════════════════════════════════════════════
+const BACKUP_DIR_KEY   = 'sigerpro_backup_dir_granted';  // si ya se eligió carpeta
+let   _backupDirHandle = null;   // FileSystemDirectoryHandle activo en esta sesión
+let   _backupAutoTimer = null;   // intervalo de autoguardado en D:\
+
+function _buildBackupPayload() {
+  return JSON.stringify({
+    version:    'SIGERPRO_2.0',
+    exportado:  new Date().toISOString(),
+    reportes:   DB,
+    usuarios:   USERS,
+    historico:  HISTORICAL_DB
+  }, null, 2);
+}
+
+function _backupFilename() {
+  const d = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  return `SIGERPRO_backup_${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}.json`;
+}
+
+// Escribe el archivo en la carpeta elegida (File System Access API)
+async function _writeBackupFile() {
+  if (!_backupDirHandle) return false;
+  try {
+    const fname    = _backupFilename();
+    const fileHandle = await _backupDirHandle.getFileHandle(fname, { create: true });
+    const writable   = await fileHandle.createWritable();
+    await writable.write(_buildBackupPayload());
+    await writable.close();
+    document.getElementById('nb-backup-ok').style.display = '';
+    return fname;
+  } catch(e) {
+    console.warn('Backup write error:', e);
+    return false;
+  }
+}
+
+// Abre modal de configuración de respaldo
+function abrirBackupUnidad() {
+  _renderBackupModal();
+  openModal('m-backup');
+}
+
+function _renderBackupModal() {
+  const statusEl = document.getElementById('backup-status');
+  if (!statusEl) return;
+  if (_backupDirHandle) {
+    statusEl.innerHTML = `<div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:10px 14px;font-size:12.5px;color:#15803d">
+      <strong>✓ Carpeta vinculada:</strong> ${_backupDirHandle.name}<br>
+      <span style="font-size:11.5px;color:#166534">El sistema guardará respaldos automáticamente en esta carpeta.</span>
+    </div>`;
+  } else {
+    statusEl.innerHTML = `<div style="background:#fef9c3;border:1px solid #fde047;border-radius:8px;padding:10px 14px;font-size:12.5px;color:#92400e">
+      <strong>⚠ Sin carpeta vinculada.</strong><br>
+      <span style="font-size:11.5px">Haga clic en "Seleccionar carpeta D:\\" para elegir dónde guardar los respaldos.</span>
+    </div>`;
+  }
+}
+
+// Permite al usuario elegir la carpeta (ej. D:\SIGERPRO_Backups)
+async function seleccionarCarpetaBackup() {
+  if (!window.showDirectoryPicker) {
+    toast('Tu navegador no soporta selección de carpeta. Usa Chrome o Edge.', 'err');
+    return;
+  }
+  try {
+    _backupDirHandle = await window.showDirectoryPicker({ mode: 'readwrite', startIn: 'desktop' });
+    toast(`Carpeta "${_backupDirHandle.name}" vinculada correctamente.`, 'ok');
+    _renderBackupModal();
+    // Activar autoguardado cada 5 minutos
+    _activarAutoBackup();
+  } catch(e) {
+    if (e.name !== 'AbortError') toast('No se pudo vincular la carpeta.', 'err');
+  }
+}
+
+function _activarAutoBackup() {
+  if (_backupAutoTimer) clearInterval(_backupAutoTimer);
+  _backupAutoTimer = setInterval(async function() {
+    if (currentUser && _backupDirHandle) {
+      await _writeBackupFile();
+    }
+  }, 5 * 60 * 1000); // cada 5 minutos
+}
+
+async function guardarBackupAhora() {
+  if (!_backupDirHandle) {
+    toast('Primero selecciona una carpeta de respaldo.', 'err');
+    return;
+  }
+  const fname = await _writeBackupFile();
+  if (fname) {
+    toast(`Respaldo guardado: ${fname}`, 'ok');
+    document.getElementById('backup-last').textContent = 'Último respaldo: ' + new Date().toLocaleString('es-SV');
+  } else {
+    toast('Error al guardar el respaldo. Verifica los permisos de la carpeta.', 'err');
+  }
+}
+
+// Restaurar desde archivo JSON de respaldo
+function importarBackupJSON() {
+  const input = document.createElement('input');
+  input.type = 'file'; input.accept = '.json';
+  input.onchange = function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (!data.reportes) { toast('Archivo no válido — no contiene reportes.', 'err'); return; }
+        if (!confirm(`¿Restaurar desde el respaldo?\n\nFecha: ${data.exportado||'desconocida'}\nReportes: ${(data.reportes||[]).length}\nUsuarios: ${(data.usuarios||[]).length}\n\nEsto reemplazará los datos actuales.`)) return;
+        DB = data.reportes || DB;
+        if (data.usuarios && data.usuarios.length) { USERS = data.usuarios; saveUsers(); }
+        if (data.historico) { HISTORICAL_DB = data.historico; saveHistoricalDB(); }
+        saveDB();
+        document.getElementById('nb-total').textContent = DB.filter(r=>r.fecha).length;
+        renderDashboard();
+        closeModal('m-backup');
+        toast('Datos restaurados correctamente desde respaldo.', 'ok');
+      } catch(ex) { toast('Error leyendo el archivo de respaldo: ' + ex.message, 'err'); }
+    };
+    reader.readAsText(file, 'UTF-8');
+  };
+  input.click();
+}
+
+// ═══════════════════════════════════════════════
 // HAMBURGER — TOGGLE SIDEBAR
 // ═══════════════════════════════════════════════
 function toggleSidebar() {
@@ -4335,6 +4577,55 @@ function initApp() {
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14" style="margin-right:4px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
         Generar PDF
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL: RESPALDO EN UNIDAD D:\ ══════════════════════════════════════ -->
+<div id="m-backup" class="modal-bg hidden">
+  <div class="modal-box" style="max-width:520px">
+    <div class="modal-head">
+      <h3>🗄️ Respaldo en Unidad D:\</h3>
+      <button class="modal-x" onclick="closeModal('m-backup')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Info -->
+      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px 14px;font-size:12px;color:#1e40af;margin-bottom:14px">
+        <strong>¿Cómo funciona?</strong><br>
+        Selecciona una carpeta en tu unidad <strong>D:\</strong> (ej. <code>D:\SIGERPRO_Backups</code>).
+        El sistema guardará automáticamente archivos <code>.json</code> con todos los reportes, usuarios y datos históricos cada 5 minutos y al cerrar sesión.
+      </div>
+
+      <!-- Estado actual -->
+      <div id="backup-status" style="margin-bottom:14px"></div>
+
+      <!-- Último respaldo -->
+      <div id="backup-last" style="font-size:11.5px;color:var(--muted);margin-bottom:14px;text-align:center"></div>
+
+      <!-- Acciones -->
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <button class="btn btn-primary" onclick="seleccionarCarpetaBackup()" style="justify-content:center">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z"/></svg>
+          Seleccionar carpeta en D:\
+        </button>
+        <button class="btn btn-secondary" onclick="guardarBackupAhora()" style="justify-content:center">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+          Guardar respaldo ahora
+        </button>
+        <hr style="border:none;border-top:1px solid var(--border);margin:2px 0">
+        <button class="btn btn-outline" onclick="importarBackupJSON()" style="justify-content:center;color:#0d9488;border-color:#0d9488">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+          Restaurar desde archivo de respaldo (.json)
+        </button>
+      </div>
+
+      <div style="margin-top:14px;background:#fef9c3;border:1px solid #fde047;border-radius:6px;padding:8px 12px;font-size:11px;color:#92400e">
+        <strong>Requisito:</strong> Usar <strong>Google Chrome</strong> o <strong>Microsoft Edge</strong> (versión 86 o superior). Firefox no soporta esta función.
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('m-backup')">Cerrar</button>
     </div>
   </div>
 </div>
