@@ -52,6 +52,49 @@ input, select, textarea { font-family: inherit; }
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
 
 /* ── INDICATOR SLOT SELECTOR ── */
+/* ── EVIDENCE ATTACHMENT ── */
+.ev-badge {
+  display:inline-flex; align-items:center; gap:3px;
+  background:#eff6ff; border:1px solid #93c5fd; border-radius:10px;
+  padding:2px 7px; font-size:10px; font-weight:700; color:#1e40af;
+  vertical-align:middle; margin-left:4px;
+}
+.ev-badge.has-ev { background:#f0fdf4; border-color:#86efac; color:#15803d; }
+.ev-dropzone {
+  border:2px dashed #93c5fd; border-radius:10px; padding:24px;
+  text-align:center; cursor:pointer; background:#eff6ff;
+  transition:background .15s, border-color .15s;
+}
+.ev-dropzone:hover, .ev-dropzone.dragover {
+  background:#dbeafe; border-color:#3b82f6;
+}
+.ev-file-item {
+  display:flex; align-items:center; gap:10px;
+  padding:10px 14px; border:1px solid var(--border2); border-radius:8px;
+  background:var(--bg2); margin-bottom:8px;
+}
+.ev-file-item:last-child { margin-bottom:0; }
+.ev-file-icon {
+  width:36px; height:36px; border-radius:7px; background:#fee2e2;
+  border:1px solid #fca5a5; display:flex; align-items:center;
+  justify-content:center; font-size:16px; flex-shrink:0;
+}
+.ev-file-name {
+  flex:1; font-size:12.5px; font-weight:600; color:var(--text);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.ev-file-meta { font-size:11px; color:var(--muted); margin-top:2px; }
+.ev-act { background:none; border:none; cursor:pointer; padding:5px; border-radius:5px; display:flex; }
+.ev-act:hover { background:var(--bg3); }
+.ev-panel {
+  margin-top:18px; border:1px solid #bfdbfe; border-radius:10px; overflow:hidden;
+}
+.ev-panel-head {
+  background:linear-gradient(135deg,#eff6ff,#dbeafe); padding:10px 16px;
+  display:flex; align-items:center; gap:8px; border-bottom:1px solid #bfdbfe;
+}
+
+/* ── INDICATOR SLOT SELECTOR ── */
 .ind-ctrl-card {
   border-radius:12px; overflow:hidden; margin-bottom:18px;
 }
@@ -1360,6 +1403,10 @@ select.form-input option { background: var(--bg2); }
     <div class="modal-body" id="det-body"></div>
     <div class="modal-foot">
       <button class="btn btn-secondary" onclick="closeModal('m-detalle')">Cerrar</button>
+      <button class="btn btn-outline btn-sm" onclick="abrirEvidenciasDetalle()" style="color:#1e40af;border-color:#93c5fd;display:flex;align-items:center;gap:5px">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="13" height="13"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
+        Adjuntar Evidencia
+      </button>
     </div>
   </div>
 </div>
@@ -2814,6 +2861,10 @@ function renderLista() {
           <button class="act" onclick="imprimirRSC_idx(${i})" style="background:rgba(0,48,135,.08);color:#003087;border:1px solid rgba(0,48,135,.25)" title="Generar PDF">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="12" height="12" style="margin-right:2px;vertical-align:middle"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>PDF
           </button>
+          <button class="act" onclick="abrirEvidencias(${r.no},'Reporte N° ${r.no}')" style="background:rgba(30,64,175,.08);color:#1e40af;border:1px solid rgba(30,64,175,.25)" title="Adjuntar/Ver evidencias PDF">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="12" height="12" style="margin-right:2px;vertical-align:middle"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg><span id="ev-lbl-${r.no}">Evidencia</span>
+          </button>
+          <span class="ev-badge" data-ev-badge="${r.no}" id="ev-badge-${r.no}" style="display:none"></span>
           ${canDelete()?`<button class="act act-d" onclick="eliminar(${i})">×</button>`:''}
         </td>
       </tr>`).join('');
@@ -2822,6 +2873,8 @@ function renderLista() {
   document.getElementById('pag-cur').textContent = `${currentPage} / ${totalPages}`;
   document.getElementById('pag-prev').disabled = currentPage<=1;
   document.getElementById('pag-next').disabled = currentPage>=totalPages;
+  // Actualizar badges de evidencias
+  _actualizarEvidenciaBadges();
 }
 
 function changePage(dir) { currentPage+=dir; renderLista(); }
@@ -2834,10 +2887,38 @@ function verDetalle(idx, src) {
   if (src==='lista') { const filtered=getFiltered(); const start=(currentPage-1)*PAGE_SIZE; r=filtered[start+idx]; }
   else r = DB[idx];
   if (!r) return;
+  _currentDetalleRecord = r;
   document.getElementById('det-title').textContent = `Reporte N° ${r.no} — ${r.tipoOcurrencia||''}`;
   
   const lvl = getRiskLevel(r.indiceRiesgo);
   const lvlR = getRiskLevel(r.indiceResultante);
+  
+  // Evidencias adjuntas para este reporte
+  const evidencias = _getEvidenciasReporte(r.no);
+  const evPanelHtml = `
+    <div class="ev-panel" id="det-ev-panel">
+      <div class="ev-panel-head">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16" style="color:#1e40af;flex-shrink:0"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
+        <span style="font-size:12px;font-weight:700;color:#1e3a8a">Evidencias Adjuntas</span>
+        <span style="background:${evidencias.length?'#dcfce7':'#e0e7ff'};color:${evidencias.length?'#15803d':'#3730a3'};border-radius:10px;padding:1px 8px;font-size:11px;font-weight:700;margin-left:4px">${evidencias.length} archivo${evidencias.length!==1?'s':''}</span>
+        <button onclick="abrirEvidenciasDetalle()" style="margin-left:auto;display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:7px;border:1px solid #93c5fd;background:#fff;color:#1e40af;font-size:11.5px;font-weight:600;cursor:pointer">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="13" height="13"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          ${evidencias.length ? 'Gestionar' : 'Adjuntar PDF'}
+        </button>
+      </div>
+      ${evidencias.length ? `<div style="padding:10px 14px;display:flex;flex-direction:column;gap:6px">
+        ${evidencias.map((f,i)=>`<div style="display:flex;align-items:center;gap:8px;font-size:12px">
+          <span style="font-size:14px">📄</span>
+          <span style="flex:1;font-weight:500;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(f.name)}</span>
+          <span style="color:var(--muted);font-size:11px;white-space:nowrap">${_fmtSize(f.size)}</span>
+          <button onclick="(function(){const list=_getEvidenciasReporte(${r.no});const f=list[${i}];if(!f)return;const a=document.createElement('a');a.href=f.data;a.download=f.name;a.click();})()" title="Descargar" style="background:none;border:none;cursor:pointer;color:#1e40af;padding:3px;border-radius:4px;display:flex">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          </button>
+        </div>`).join('')}
+      </div>` : `<div style="padding:14px;text-align:center;color:var(--muted);font-size:12.5px">
+        No hay evidencias adjuntas para este reporte.
+      </div>`}
+    </div>`;
   
   document.getElementById('det-body').innerHTML = `
     <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">
@@ -2875,7 +2956,8 @@ function verDetalle(idx, src) {
       <div class="dc"><div class="dc-lbl">Procesado en Formato RSC</div><div class="dc-val">${r.procesadoRSC||'—'}</div></div>
       <div class="dc"><div class="dc-lbl">Aceptación</div><div class="dc-val">${r.aceptacion||'—'}</div></div>
       <div class="dc"><div class="dc-lbl">Revisión AAC</div><div class="dc-val">${esc(r.revisionAAC)||'—'}</div></div>
-    </div>`;
+    </div>
+    ${evPanelHtml}`;
   openModal('m-detalle');
 }
 
@@ -3180,6 +3262,26 @@ function imprimirRSC(r, elaborado, revisado, autorizado) {
     ${field('Revisión AAC', r.revisionAAC||'—', true)}
   </div>
 </div>
+
+<!-- SECCIÓN 5: EVIDENCIAS -->
+${(function(){
+  const evList = _getEvidenciasReporte(r.no);
+  if (!evList.length) return '';
+  return `<div class="section">
+  <div class="section-title">5. Evidencias Adjuntas</div>
+  <div class="section-body single">
+    ${evList.map((f,i)=>`<div class="${'field full'}" style="display:flex;align-items:center;gap:10px;padding:4px 0;border-bottom:1px solid #f3f4f6">
+      <span style="font-size:14px">📄</span>
+      <span style="flex:1;font-size:11px;font-weight:600;color:#1a1a2e">${f.name}</span>
+      <span style="font-size:10px;color:#6b7280">${_fmtSize(f.size)}</span>
+      <span style="font-size:10px;color:#6b7280">${f.date}</span>
+    </div>`).join('')}
+    <div class="field full" style="margin-top:4px;font-size:9px;color:#9ca3af">
+      Total: ${evList.length} archivo${evList.length!==1?'s':''} adjunto${evList.length!==1?'s':''}. Los archivos PDF se almacenan separadamente en el sistema.
+    </div>
+  </div>
+</div>`;
+})()}
 
 <!-- FIRMAS -->
 <div class="sign-line">
@@ -4361,6 +4463,166 @@ function importarBackupJSON() {
 }
 
 // ═══════════════════════════════════════════════
+// EVIDENCIAS EN PDF — ADJUNTAR ARCHIVOS PDF
+// ═══════════════════════════════════════════════
+const EV_STORAGE_KEY = 'sigerpro_evidencias_v1';
+
+function _loadEvidencias() {
+  try { const r = localStorage.getItem(EV_STORAGE_KEY); return r ? JSON.parse(r) : {}; } catch(e) { return {}; }
+}
+function _saveEvidencias(ev) {
+  try { localStorage.setItem(EV_STORAGE_KEY, JSON.stringify(ev)); } catch(e) {
+    toast('Error: espacio de almacenamiento insuficiente para evidencias.','err');
+  }
+}
+function _getEvidenciasReporte(no) {
+  return (_loadEvidencias()[String(no)] || []);
+}
+function _setEvidenciasReporte(no, list) {
+  const all = _loadEvidencias();
+  all[String(no)] = list;
+  _saveEvidencias(all);
+}
+
+// Formatea bytes a KB/MB
+function _fmtSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/(1024*1024)).toFixed(2) + ' MB';
+}
+
+// Estado global para modal de evidencias
+let _evReporteNo = null;
+let _evReporteTitulo = '';
+
+function abrirEvidencias(no, titulo) {
+  _evReporteNo = no;
+  _evReporteTitulo = titulo || ('Reporte N° ' + no);
+  document.getElementById('ev-modal-title').textContent = '📎 Evidencias — ' + _evReporteTitulo;
+  _renderEvidenciasList();
+  document.getElementById('ev-drop-file').value = '';
+  openModal('m-evidencia');
+}
+
+function _renderEvidenciasList() {
+  const list = _getEvidenciasReporte(_evReporteNo);
+  const container = document.getElementById('ev-list');
+  const empty = document.getElementById('ev-empty');
+  const count = document.getElementById('ev-count');
+
+  count.textContent = list.length;
+  if (!list.length) {
+    container.innerHTML = '';
+    empty.style.display = '';
+  } else {
+    empty.style.display = 'none';
+    container.innerHTML = list.map((f, i) => `
+      <div class="ev-file-item">
+        <div class="ev-file-icon">📄</div>
+        <div style="flex:1;min-width:0">
+          <div class="ev-file-name" title="${escHtml(f.name)}">${escHtml(f.name)}</div>
+          <div class="ev-file-meta">${_fmtSize(f.size)} &nbsp;·&nbsp; ${f.date}</div>
+        </div>
+        <button class="ev-act" title="Descargar" onclick="_evDescargar(${i})" style="color:#1e40af">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+        </button>
+        <button class="ev-act" title="Eliminar evidencia" onclick="_evEliminar(${i})" style="color:#dc2626">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+        </button>
+      </div>`).join('');
+  }
+  // Actualizar badges en la tabla de reportes
+  _actualizarEvidenciaBadges();
+}
+
+function _evDescargar(idx) {
+  const list = _getEvidenciasReporte(_evReporteNo);
+  const f = list[idx];
+  if (!f) return;
+  const a = document.createElement('a');
+  a.href = f.data;
+  a.download = f.name;
+  a.click();
+}
+
+function _evEliminar(idx) {
+  if (!confirm('¿Eliminar esta evidencia?\n\nEsta acción no se puede deshacer.')) return;
+  const list = _getEvidenciasReporte(_evReporteNo);
+  list.splice(idx, 1);
+  _setEvidenciasReporte(_evReporteNo, list);
+  _renderEvidenciasList();
+  toast('Evidencia eliminada.', 'ok');
+}
+
+function handleEvDrop(e) {
+  e.preventDefault();
+  document.getElementById('ev-dropzone').classList.remove('dragover');
+  const files = Array.from(e.dataTransfer.files).filter(f => f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf'));
+  if (!files.length) { toast('Solo se aceptan archivos PDF.', 'err'); return; }
+  files.forEach(f => _evProcesarArchivo(f));
+}
+
+function handleEvFileChange(input) {
+  const files = Array.from(input.files).filter(f => f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf'));
+  if (!files.length) { toast('Solo se aceptan archivos PDF.', 'err'); return; }
+  files.forEach(f => _evProcesarArchivo(f));
+  input.value = '';
+}
+
+function _evProcesarArchivo(file) {
+  if (file.size > 10 * 1024 * 1024) {
+    toast(`"${file.name}" supera el límite de 10 MB por archivo.`, 'err');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const list = _getEvidenciasReporte(_evReporteNo);
+    // Verificar duplicado por nombre
+    if (list.find(x => x.name === file.name)) {
+      if (!confirm(`Ya existe una evidencia llamada "${file.name}". ¿Reemplazarla?`)) return;
+      const idx = list.findIndex(x => x.name === file.name);
+      list.splice(idx, 1);
+    }
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('es-SV',{day:'2-digit',month:'2-digit',year:'numeric'}) + ' ' +
+                    now.toLocaleTimeString('es-SV',{hour:'2-digit',minute:'2-digit'});
+    list.push({ name: file.name, size: file.size, date: dateStr, data: e.target.result });
+    _setEvidenciasReporte(_evReporteNo, list);
+    _renderEvidenciasList();
+    toast(`Evidencia "${file.name}" adjuntada.`, 'ok');
+  };
+  reader.readAsDataURL(file);
+}
+
+// Actualiza los badges en la tabla de lista (llama después de cambios)
+function _actualizarEvidenciaBadges() {
+  const allEv = _loadEvidencias();
+  document.querySelectorAll('[data-ev-badge]').forEach(el => {
+    const no = el.getAttribute('data-ev-badge');
+    const cnt = (allEv[String(no)] || []).length;
+    if (cnt > 0) {
+      el.innerHTML = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="11" height="11" style="margin-right:2px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>${cnt}`;
+      el.className = 'ev-badge has-ev';
+      el.title = cnt + ' evidencia(s) adjunta(s)';
+    } else {
+      el.innerHTML = '';
+      el.style.display = 'none';
+    }
+  });
+}
+
+// Llamado desde la lista y detalle — abre modal para el reporte actual en detalle
+function abrirEvidenciasDetalle() {
+  const titleEl = document.getElementById('det-title');
+  const titulo = titleEl ? titleEl.textContent : '';
+  if (_currentDetalleRecord) {
+    abrirEvidencias(_currentDetalleRecord.no, titulo);
+  }
+}
+
+let _currentDetalleRecord = null;
+
+// ═══════════════════════════════════════════════
 // HAMBURGER — TOGGLE SIDEBAR
 // ═══════════════════════════════════════════════
 function toggleSidebar() {
@@ -4576,6 +4838,64 @@ function initApp() {
       <button class="btn btn-primary" onclick="_confirmarPdfRsc()">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14" style="margin-right:4px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
         Generar PDF
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL: EVIDENCIAS EN PDF ════════════════════════════════════════════ -->
+<div id="m-evidencia" class="modal-bg hidden">
+  <div class="modal-box" style="max-width:540px">
+    <div class="modal-head">
+      <h3 id="ev-modal-title">📎 Evidencias</h3>
+      <button class="modal-x" onclick="closeModal('m-evidencia')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Info -->
+      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px 14px;font-size:12px;color:#1e40af;margin-bottom:14px;display:flex;align-items:flex-start;gap:8px">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15" style="margin-top:1px;flex-shrink:0"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <div>Adjunte archivos PDF como evidencia de soporte para este reporte. Los archivos se almacenan en el navegador. Tamaño máximo: <strong>10 MB por archivo</strong>.</div>
+      </div>
+
+      <!-- Dropzone -->
+      <div class="ev-dropzone" id="ev-dropzone"
+        onclick="document.getElementById('ev-drop-file').click()"
+        ondragover="event.preventDefault();this.classList.add('dragover')"
+        ondragleave="this.classList.remove('dragover')"
+        ondrop="handleEvDrop(event)">
+        <div style="font-size:32px;margin-bottom:8px">📎</div>
+        <div style="font-size:13px;font-weight:700;color:#1e40af;margin-bottom:4px">Arrastra tu PDF aquí o haz clic para seleccionar</div>
+        <div style="font-size:11.5px;color:#3b82f6">Solo archivos <strong>.PDF</strong> · Máximo 10 MB por archivo</div>
+        <input type="file" id="ev-drop-file" accept=".pdf,application/pdf" multiple style="display:none"
+          onchange="handleEvFileChange(this)">
+      </div>
+
+      <!-- Lista de evidencias -->
+      <div style="margin-top:16px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <span style="font-size:11.5px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.6px">Archivos adjuntos</span>
+          <span style="background:#e0e7ff;color:#3730a3;border-radius:10px;padding:1px 8px;font-size:11px;font-weight:700" id="ev-count">0</span>
+        </div>
+
+        <div id="ev-empty" style="padding:20px;text-align:center;border:1px dashed var(--border2);border-radius:8px;color:var(--muted);font-size:12.5px">
+          <div style="font-size:26px;margin-bottom:6px">📂</div>
+          No hay evidencias adjuntas aún.<br>
+          <span style="font-size:11.5px">Usa la zona de arriba para adjuntar un PDF.</span>
+        </div>
+        <div id="ev-list"></div>
+      </div>
+
+      <!-- Advertencia sobre almacenamiento -->
+      <div style="margin-top:14px;background:#fef9c3;border:1px solid #fde047;border-radius:6px;padding:8px 12px;font-size:11px;color:#92400e">
+        <strong>⚠ Almacenamiento local:</strong> Las evidencias se guardan en el navegador (localStorage). Si limpia el caché del navegador, se perderán. Use la opción <strong>"Respaldo en D:\"</strong> para mantener copias externas.
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('m-evidencia')">Cerrar</button>
+      <button class="btn btn-primary" onclick="document.getElementById('ev-drop-file').click()" style="background:#1e40af">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14" style="margin-right:4px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        Adjuntar PDF
       </button>
     </div>
   </div>
