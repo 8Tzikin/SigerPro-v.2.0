@@ -1,53 +1,29 @@
-# ─── Sistema operativo ────────────────────────────────
+# ── Sistema operativo ─────────────────────────
 .DS_Store
-.DS_Store?
 ._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
 desktop.ini
 
-# ─── Editores de código ───────────────────────────────
+# ── Editores ──────────────────────────────────
 .vscode/
 .idea/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
 *.swp
 *~
 
-# ─── Node.js (si se usa servidor local) ──────────────
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-package-lock.json
-
-# ─── Python (si se usa servidor local) ───────────────
-__pycache__/
-*.py[cod]
-*.pyo
-
-# ─── Archivos de respaldo y temporales ───────────────
-*.bak
-*.tmp
-*.temp
-*.backup
+# ── Respaldos y datos sensibles ───────────────
 SIGERPRO_backup_*.json
-
-# ─── Datos sensibles (no subir backups locales) ──────
 backups/
 respaldos/
-data/
-*.json
+*.bak
+*.tmp
 
-# ─── Archivos de evidencias subidas (PDFs locales) ───
+# ── Evidencias PDF locales ────────────────────
 evidencias/
 uploads/
 
-# ─── Logs ─────────────────────────────────────────────
+# ── Node (servidor local opcional) ────────────
+node_modules/
+package-lock.json
+
+# ── Logs ──────────────────────────────────────
 *.log
-logs/

@@ -1,5 +1,5 @@
 # SIGER PRO v2.0
-## Sistema de Gestión de Riesgos — AIES-SOARG / CEPA
+## Sistema de Gestión de Riesgos de Seguridad Operacional — AIES-SOARG / CEPA
 
 <div align="center">
 
@@ -10,6 +10,8 @@
 ![Dependencias](https://img.shields.io/badge/dependencias-ninguna-lightgrey?style=flat-square)
 
 **Sistema web de evaluación, registro y seguimiento de eventos de seguridad operacional aeroportuaria.**
+
+> ⚡ Sin instalación. Sin servidor. Sin dependencias. Solo abre `index.html` en Chrome o Edge.
 
 </div>
 
@@ -25,11 +27,11 @@
 - [Roles y permisos](#-roles-y-permisos)
 - [Usuarios por defecto](#-usuarios-por-defecto)
 - [Funcionalidades principales](#-funcionalidades-principales)
+- [Indicadores de desempeño](#-indicadores-de-desempeño)
 - [Formato de importación](#-formato-de-importación)
 - [Evidencias en PDF](#-evidencias-en-pdf)
 - [Respaldo de datos](#-respaldo-de-datos)
 - [Tecnologías](#-tecnologías)
-- [Capturas](#-capturas)
 - [Changelog](#-changelog)
 - [Autor](#-autor)
 
@@ -37,9 +39,7 @@
 
 ## 📖 Descripción
 
-SIGER PRO es una aplicación web de **una sola página (SPA)** sin dependencias externas, diseñada para el Aeropuerto Internacional El Salvador (AIES-SOARG) bajo la gestión de la **Comisión Ejecutiva Portuaria Autónoma (CEPA)**. Permite registrar, evaluar y hacer seguimiento a eventos de seguridad operacional siguiendo los estándares **OACI/SMS** y las normativas **RAC** aplicables.
-
-> ⚡ **Sin instalación requerida.** Solo abre `index.html` en un navegador moderno.
+SIGER PRO es una **Single-Page Application (SPA) de archivo único** sin dependencias externas, diseñada para el Aeropuerto Internacional El Salvador (AIES-SOARG) bajo la gestión de la **Comisión Ejecutiva Portuaria Autónoma (CEPA)**. Permite registrar, evaluar y dar seguimiento a eventos de seguridad operacional siguiendo los estándares **OACI/SMS** y las normativas **RAC** aplicables.
 
 ---
 
@@ -47,28 +47,28 @@ SIGER PRO es una aplicación web de **una sola página (SPA)** sin dependencias 
 
 | Función | Descripción |
 |---|---|
-| 📊 Dashboard | Resumen ejecutivo con KPIs, gráficas de distribución y últimos reportes |
-| 📋 Registro de Reportes | CRUD completo con paginación, filtros y búsqueda avanzada |
-| 📈 Indicadores | Gauges por tipo de ocurrencia con análisis estadístico σ (UCL/LCL) |
-| 🔲 Matriz de Riesgo | Visualización OACI 5×5 con conteo de ocurrencias por celda |
-| 📚 Base Normativa | Consulta de regulaciones RAC y normativa interna AIES-SOARG |
-| 📄 Exportación PDF | Generación de Formato RSC con firmas y evidencias adjuntas |
-| 📎 Evidencias PDF | Adjuntar, gestionar y descargar archivos PDF por reporte |
-| 📂 Importar Excel/CSV | Carga masiva de reportes desde archivos `.xlsx` o `.csv` |
-| 🗄️ Bases Guardadas | Snapshots restaurables de la base de datos |
-| 📅 Datos Históricos | Carga de años anteriores para análisis estadístico comparativo |
-| 💾 Respaldo en D:\ | Guardado automático en unidad local vía File System Access API |
-| 👥 Gestión de Usuarios | Control de acceso con 3 niveles de rol |
-| 🔐 Autenticación | Sistema de login con sesiones por pestaña |
-| 💾 Autoguardado | Persistencia automática en localStorage cada 60 segundos |
+| 📊 **Dashboard** | Resumen ejecutivo con KPIs, gráficas y últimos reportes |
+| 📋 **Registro de Reportes** | CRUD completo con scroll interno, filtros y búsqueda |
+| 📈 **Indicadores** | Gauges responsivos con análisis estadístico Prom+1σ / +2σ / +3σ |
+| 🔲 **Matriz de Riesgo** | Visualización OACI 5×5 con conteo por celda |
+| 📚 **Base Normativa** | Consulta de regulaciones RAC y normativa interna |
+| 📄 **PDF Formato RSC** | Generación de reporte con firmas y evidencias adjuntas |
+| 📎 **Evidencias PDF** | Adjuntar, gestionar y descargar archivos PDF por reporte |
+| 📂 **Importar Excel/CSV** | Carga masiva desde `.xlsx` o `.csv` |
+| 🗄️ **Bases Guardadas** | Snapshots restaurables de la base de datos |
+| 📅 **Datos Históricos** | Carga de años anteriores para análisis estadístico |
+| 💾 **Respaldo en D:\** | Guardado automático en unidad local (Chrome/Edge) |
+| ➕ **Tipos Dinámicos** | Agregar nuevos Tipos de Ocurrencia y Tipos de Reporte con normativa asociada |
+| 👥 **Gestión de Usuarios** | Control de acceso con 3 niveles de rol |
+| 🔐 **Autenticación** | Login con sesiones persistentes |
 
 ---
 
 ## 💻 Requisitos
 
 - **Navegador:** Google Chrome 86+ o Microsoft Edge 86+
-- **Para respaldo en D:\:** Chrome o Edge (la función `showDirectoryPicker` no está disponible en Firefox)
-- **No requiere:** servidor web, base de datos, Node.js, ni ninguna librería externa
+- **Para respaldo en D:\:** Chrome o Edge (requiere File System Access API)
+- **No requiere:** servidor web, base de datos, Node.js ni librerías externas
 
 ---
 
@@ -76,32 +76,28 @@ SIGER PRO es una aplicación web de **una sola página (SPA)** sin dependencias 
 
 ### Opción 1 — Uso directo (recomendado)
 ```bash
-# Clona el repositorio
 git clone https://github.com/TU_USUARIO/sigerpro.git
-
-# Entra al directorio
 cd sigerpro
 
-# Abre el archivo directamente en Chrome o Edge
-# Windows:
+# Windows
 start index.html
 
-# macOS:
+# macOS
 open index.html
 
-# Linux:
+# Linux
 xdg-open index.html
 ```
 
-### Opción 2 — Servidor local (opcional)
+### Opción 2 — Servidor local
 ```bash
-# Con Python 3
+# Python 3
 python -m http.server 8080
 
-# Con Node.js (si tienes npx)
+# Node.js
 npx serve .
 
-# Luego abre: http://localhost:8080
+# Accede en: http://localhost:8080
 ```
 
 ---
@@ -111,12 +107,12 @@ npx serve .
 ```
 sigerpro/
 │
-├── index.html          # Aplicación completa (HTML + CSS + JS embebidos)
+├── index.html                   ← Aplicación completa (HTML + CSS + JS)
 │
 ├── docs/
-│   ├── MANUAL_USUARIO.md    # Guía de uso detallada
-│   ├── FORMATO_IMPORTACION.md  # Especificación del formato CSV/XLSX
-│   └── ARQUITECTURA.md      # Notas técnicas de la aplicación
+│   ├── MANUAL_USUARIO.md        ← Guía de uso paso a paso
+│   ├── FORMATO_IMPORTACION.md   ← Especificación CSV/XLSX
+│   └── ARQUITECTURA.md          ← Documentación técnica
 │
 ├── .gitignore
 ├── CHANGELOG.md
@@ -124,7 +120,7 @@ sigerpro/
 └── README.md
 ```
 
-> 💡 Toda la lógica de la aplicación (estilos, scripts y markup) está contenida en **un único archivo** `index.html` para máxima portabilidad y facilidad de distribución.
+> 💡 Toda la lógica (estilos, scripts y markup) está en **un único archivo** `index.html` para máxima portabilidad.
 
 ---
 
@@ -146,80 +142,83 @@ sigerpro/
 | `maria.garcia@cepa.gob.sv` | `cepa2026` | Administrador |
 | `carlos.auditor@cepa.gob.sv` | `auditor123` | Auditor |
 
-> ⚠️ **Importante:** Cambia las contraseñas por defecto antes de poner el sistema en producción.
+> ⚠️ Cambia las contraseñas antes de poner el sistema en producción.
 
 ---
 
 ## 🔧 Funcionalidades principales
 
+### Base de datos vacía al iniciar
+El sistema inicia sin registros. Los datos se cargan exclusivamente mediante importación de Excel/CSV o ingreso manual de reportes.
+
 ### Nuevo Reporte
-1. Ve a **Nuevo Reporte** en el menú lateral
-2. Completa los campos obligatorios: Fecha, Reportado Por, Tipo de Ocurrencia, Descripción
-3. La **Regulación** y **Normativa** se rellenan automáticamente al seleccionar el tipo
-4. El **Índice de Riesgo** se calcula automáticamente (Probabilidad × Severidad)
-5. Guarda el reporte → regresa automáticamente a la lista
+- Tipos de Ocurrencia y Tipos de Reporte **dinámicos** — se pueden agregar nuevos tipos desde el formulario
+- Al seleccionar un Tipo de Ocurrencia, la Regulación y Normativa se rellenan **automáticamente**
+- El Índice de Riesgo se calcula en tiempo real (Probabilidad × Severidad)
 
 ### Generar PDF (Formato RSC)
-1. En la lista de reportes, haz clic en el botón **PDF** de cualquier fila
-2. Ingresa los nombres para las firmas (Elaborado por, Revisado por, Autorizado por)
-3. Clic en **Generar PDF** → se abre una ventana con el documento listo para imprimir/guardar
+1. Clic en **PDF** en cualquier fila de la lista
+2. Ingresa los nombres para firmas
+3. El PDF se genera con todas las secciones incluyendo evidencias adjuntas
 
-### Importar desde Excel
-1. En el menú lateral, haz clic en **Importar Excel**
-2. Arrastra o selecciona un archivo `.xlsx` o `.csv`
-3. Verifica la vista previa de los datos
-4. Confirma la importación
+---
+
+## 📈 Indicadores de desempeño
+
+Los gauges muestran la tasa de ocurrencia de cada tipo de evento y calculan automáticamente los tres niveles de desviación estándar:
+
+| Nivel | Cálculo | Estado |
+|---|---|---|
+| 🟢 **Normal** | Valor ≤ Prom + 1σ | Dentro del rango esperado |
+| 🟡 **Atención** | Prom+1σ < Valor ≤ Prom+2σ | Ligero incremento |
+| 🟠 **Alerta** | Prom+2σ < Valor ≤ Prom+3σ | Incremento significativo |
+| 🔴 **Crítico** | Valor > Prom+3σ | Requiere acción inmediata |
+
+Los gauges son **totalmente responsivos** — se adaptan al ancho disponible en pantalla y se redibujan al redimensionar la ventana. Los indicadores de Alto y Bajo Impacto permiten seleccionar **cualquier tipo** de la base en cualquier sección.
 
 ---
 
 ## 📊 Formato de importación
 
-El archivo debe contener las siguientes columnas (ver `docs/FORMATO_IMPORTACION.md`):
+| Columna | Requerido |
+|---|:---:|
+| `NO.` | Sí |
+| `FECHA` (YYYY-MM-DD) | Sí |
+| `TIPO DE OCURRENCIA/PELIGRO` | Sí |
+| `REPORTE PRESENTADO POR:` | Sí |
+| `ENTIDAD DE ORIGEN DE REPORTE` | No |
+| `PROBABILIDAD DE RIESGO` (1–5) | No |
+| `SEVERIDAD DE RIESGO` (A–E) | No |
+| `ESTADO` (CIERRE/SEGUIMIENTO) | No |
 
-| Columna | Requerido | Formato |
-|---|:---:|---|
-| `NO.` | Sí | Número entero |
-| `FECHA` | Sí | YYYY-MM-DD o DD/MM/YYYY |
-| `TIPO DE OCURRENCIA/PELIGRO` | Sí | Texto |
-| `REPORTE PRESENTADO POR:` | Sí | Texto |
-| `ENTIDAD DE ORIGEN DE REPORTE` | No | Texto |
-| `PROBABILIDAD DE RIESGO` | No | 1–5 |
-| `SEVERIDAD DE RIESGO` | No | A–E |
-| `ESTADO` | No | `CIERRE` o `SEGUIMIENTO` |
+> Descarga la plantilla desde el modal Importar → **Descargar plantilla CSV**.
 
-> 📥 Descarga la plantilla desde el modal de importación → **Descargar plantilla CSV**.
+Consulta la especificación completa en [docs/FORMATO_IMPORTACION.md](docs/FORMATO_IMPORTACION.md).
 
 ---
 
 ## 📎 Evidencias en PDF
 
-Cada reporte puede tener **archivos PDF de evidencia** adjuntos:
-
-- **Adjuntar:** botón 📎 Evidencia en la fila del reporte o desde el detalle
-- **Drag & Drop:** arrastra PDFs directo al modal
-- **Límite:** 10 MB por archivo
-- **Almacenamiento:** `localStorage` del navegador
-- **Descarga:** botón ⬇ en la lista de evidencias
-- **En el PDF RSC:** se genera automáticamente una sección "5. Evidencias Adjuntas"
+- Botón **📎 Evidencia** en cada fila de la lista
+- Drag & Drop o selector de archivos (solo `.pdf`, máx. 10 MB)
+- Almacenamiento en `localStorage` del navegador
+- Las evidencias aparecen listadas en el PDF generado (Sección 5)
 
 ---
 
 ## 💾 Respaldo de datos
 
 ### Respaldo automático en D:\
-1. Menú lateral → **Respaldo en D:\**
-2. Haz clic en **Seleccionar carpeta en D:\** y elige una carpeta
-3. El sistema guardará archivos `.json` automáticamente cada **5 minutos** y al cerrar sesión
-4. Para restaurar: haz clic en **Restaurar desde archivo de respaldo (.json)**
+```
+Menú lateral → Respaldo en D:\ → Seleccionar carpeta
+```
+Guarda archivos `.json` automáticamente cada 5 minutos y al cerrar sesión.
 
-> ⚠️ Esta función requiere **Chrome** o **Edge** 86+.
+### Exportar CSV
+Botón **Exportar** en la topbar — compatible con Excel.
 
-### Exportar a CSV
-- Usa el botón **Exportar** en la barra superior para descargar todos los reportes en formato `.csv` compatible con Excel.
-
-### Bases guardadas (snapshots)
-- Menú lateral → **Guardar versión** para crear un punto de restauración con nombre personalizado
-- Menú lateral → **Bases guardadas** para cargar o eliminar versiones
+### Snapshots
+**Guardar versión** para crear puntos de restauración con nombre personalizado.
 
 ---
 
@@ -227,43 +226,32 @@ Cada reporte puede tener **archivos PDF de evidencia** adjuntos:
 
 | Tecnología | Uso |
 |---|---|
-| **HTML5** | Estructura de la aplicación |
-| **CSS3** | Estilos, variables CSS, animaciones |
-| **JavaScript ES6+** | Toda la lógica de negocio |
-| **localStorage API** | Persistencia de datos en el navegador |
-| **File System Access API** | Respaldo en unidad local (D:\) |
-| **Canvas API** | Gráficas y medidores (sin Chart.js) |
-| **DecompressionStream API** | Lectura de archivos XLSX sin librerías |
-| **IBM Plex Sans** | Tipografía (Google Fonts) |
-
-> 🔒 **Sin dependencias externas de npm/CDN** para la lógica principal. La tipografía se carga desde Google Fonts (requiere conexión a internet para la fuente).
-
----
-
-## 📸 Capturas
-
-> Las capturas de pantalla se pueden encontrar en la carpeta `docs/` (si aplica).
+| HTML5 + CSS3 + JS ES6+ | Toda la aplicación |
+| localStorage API | Persistencia de datos |
+| File System Access API | Respaldo en unidad local |
+| Canvas API | Gráficas y gauges (sin Chart.js) |
+| DecompressionStream API | Lectura XLSX sin librerías |
+| IBM Plex Sans | Tipografía (Google Fonts) |
 
 ---
 
 ## 📝 Changelog
 
-Ver [CHANGELOG.md](CHANGELOG.md) para el historial de cambios.
+Ver [CHANGELOG.md](CHANGELOG.md) para el historial detallado de versiones.
 
 ---
 
 ## 👤 Autor
 
-**Noé López**
-- Institución: CEPA — Aeropuerto Internacional El Salvador (AIES-SOARG)
-- Sistema: SIGER PRO v2.0
-- Año: 2026
+**Noé López**  
+CEPA — Aeropuerto Internacional El Salvador (AIES-SOARG)  
+SIGER PRO v2.0 · 2026
 
 ---
 
 ## 📄 Licencia
 
-Este proyecto está bajo la Licencia MIT. Ver [LICENSE](LICENSE) para más detalles.
+MIT License — ver [LICENSE](LICENSE).
 
 ---
 

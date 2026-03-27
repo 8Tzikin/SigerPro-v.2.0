@@ -347,6 +347,35 @@ input, select, textarea { font-family: inherit; }
 
 /* ── TABLE ── */
 .table-wrap { overflow-x: auto; }
+
+/* ── SCROLL INTERNO — Registro de Reportes ── */
+#pg-lista {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: calc(100vh - 56px); /* 100vh menos la topbar exacta */
+}
+#pg-lista > .card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+#pg-lista .table-wrap {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: auto;
+  min-height: 0;
+  /* scrollbar lateral derecho con estilo fino */
+  scrollbar-width: thin;
+  scrollbar-color: var(--border2) transparent;
+}
+#pg-lista .table-wrap::-webkit-scrollbar { width: 8px; }
+#pg-lista .table-wrap::-webkit-scrollbar-track { background: var(--bg3); border-radius: 0 0 10px 0; }
+#pg-lista .table-wrap::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+#pg-lista .table-wrap::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+#pg-lista thead th { z-index: 2; }
 table { width: 100%; border-collapse: collapse; }
 thead th {
   padding: 10px 14px; text-align: left; font-size: 10px;
@@ -506,11 +535,30 @@ select.form-input option { background: var(--bg2); }
 
 /* ── GAUGES / INDICADORES ── */
 .gauge-section-title { font-size: 18px; font-weight: 900; color: var(--cepa-navy); text-align: center; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 22px; padding: 10px 0; }
-.gauges-grid { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; margin-bottom: 28px; }
-.gauge-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; text-align: center; min-width: 185px; max-width: 230px; flex: 1; box-shadow: 0 2px 10px rgba(0,32,91,.08); }
+.gauges-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 18px;
+  margin-bottom: 28px;
+  align-items: start;
+}
+.gauge-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 14px 12px;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0,32,91,.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+}
 .gauge-value-box { display: inline-flex; align-items: center; justify-content: center; background: #C9A227; border: none; color: #fff; font-size: 20px; font-weight: 900; border-radius: 6px; padding: 5px 18px; margin-bottom: 8px; font-family: 'IBM Plex Mono', monospace; letter-spacing: 1px; box-shadow: 0 2px 6px rgba(201,162,39,.4); }
 .gauge-label { font-size: 10.5px; font-weight: 700; color: #1a2540; text-transform: uppercase; letter-spacing: .5px; margin-top: 8px; line-height: 1.35; text-align: center; }
-.gauge-wrap canvas { display: block; margin: 0 auto; }
+.gauge-wrap { width: 100%; }
+.gauge-wrap canvas { display: block; width: 100% !important; height: auto !important; }
 
 /* ── USUARIOS PAGE ── */
 .role-badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
@@ -921,27 +969,14 @@ select.form-input option { background: var(--bg2); }
             </div>
             <div class="form-group">
               <label class="form-label">Tipo de Ocurrencia <span class="req">*</span></label>
-              <select id="n-tipo" class="form-input" onchange="autoFillNormativa(this.value)">
-                <option value="">— Seleccionar tipo —</option>
-                <option>CONDICIONES INSEGURAS EN PROYECTOS EN AREAS DE MOVIMIENTO</option>
-                <option>DAÑOS A INSTALACIONES AEROPORTUARIAS</option>
-                <option>DERRAME DE COMBUSTIBLE EN ÁREA DE MOVIMIENTO</option>
-                <option>EQUIPO DE APOYO TERRESTRE EN MAL ESTADO</option>
-                <option>FALLA EN PUENTE DE ABORDAJE</option>
-                <option>FAUNA EN EL ÁREA DE MOVIMIENTO</option>
-                <option>FOD EN PISTA</option>
-                <option>ILUMINACIÓN DEFICIENTE</option>
-                <option>IMPACTO AVES CONFIRMADOS FUERA DEL AIES-SOARG</option>
-                <option>IMPACTOS DE AVES (INCIDENTES INDETERMINADOS)</option>
-                <option>IMPACTOS DE AVES CONFIRMADOS</option>
-                <option>IMPACTOS DE AVES NO CONFIRMADOS</option>
-                <option>IMPACTOS DE FAUNA EN AERONAVES (NO AVES)</option>
-                <option>MAL PROCEDIMIENTO DE APOYO TERRESTRE</option>
-                <option>MALEZA ALTA EN AREA DE MOVIMIENTO</option>
-                <option>SEÑALIZACION HORIZONTAL DEFICIENTE</option>
-                <option>SEÑALIZACION VERTICAL DEFICIENTE</option>
-                <option>SUCIEDAD Y VEGETACIÓN ALTA EN AREA DE PERIMETRO</option>
-              </select>
+              <div style="display:flex;gap:6px;align-items:flex-start">
+                <select id="n-tipo" class="form-input" onchange="autoFillNormativa(this.value)" style="flex:1"></select>
+                <button type="button" onclick="abrirAgregarTipo('nuevo')" title="Agregar nuevo tipo de ocurrencia"
+                  style="flex-shrink:0;padding:8px 12px;border-radius:6px;border:1px solid var(--cepa-gold);background:rgba(201,162,39,.1);color:var(--cepa-gold);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;height:38px;display:flex;align-items:center;gap:4px">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="13" height="13"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                  Nuevo
+                </button>
+              </div>
             </div>
             <!-- Previsualización normativa auto-rellenada -->
             <div id="norm-autofill-preview" style="display:none;margin-bottom:12px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px 14px">
@@ -963,14 +998,14 @@ select.form-input option { background: var(--bg2); }
             </div>
             <div class="form-group">
               <label class="form-label">Tipo de Reporte</label>
-              <select id="n-tiporeporte" class="form-input">
-                <option value="">— Seleccionar —</option>
-                <option>ACCIDENTE</option>
-                <option>INCIDENTE</option>
-                <option>PELIGRO</option>
-                <option>INCURSION EN PISTA</option>
-                <option>EXCURSION DE PISTA</option>
-              </select>
+              <div style="display:flex;gap:6px;align-items:flex-start">
+                <select id="n-tiporeporte" class="form-input" style="flex:1"></select>
+                <button type="button" onclick="abrirAgregarTipoReporte('nuevo')" title="Agregar nuevo tipo de reporte"
+                  style="flex-shrink:0;padding:8px 12px;border-radius:6px;border:1px solid var(--cepa-teal2);background:rgba(0,153,153,.08);color:var(--cepa-teal);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;height:38px;display:flex;align-items:center;gap:4px">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="13" height="13"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                  Nuevo
+                </button>
+              </div>
             </div>
           </div>
 
@@ -993,7 +1028,7 @@ select.form-input option { background: var(--bg2); }
                   <option value="">— Seleccionar —</option>
                   <option value="A">A — Catastrófico</option>
                   <option value="B">B — Peligroso</option>
-                  <option value="C">C — Mayor</option>
+                  <option value="C">C — Grave</option>
                   <option value="D">D — Menor</option>
                   <option value="E">E — Insignificante</option>
                 </select>
@@ -1109,7 +1144,7 @@ select.form-input option { background: var(--bg2); }
                     <th>Prob \ Sev</th>
                     <th>A<br><small>Catastrófico</small></th>
                     <th>B<br><small>Peligroso</small></th>
-                    <th>C<br><small>Mayor</small></th>
+                    <th>C<br><small>Grave</small></th>
                     <th>D<br><small>Menor</small></th>
                     <th>E<br><small>Insignif.</small></th>
                   </tr>
@@ -1253,7 +1288,7 @@ select.form-input option { background: var(--bg2); }
                   <th style="padding:8px;background:#f0f2f8;border:1px solid #dde2ec;text-align:center;font-size:11px;color:#1a2540">Valor</th>
                   <th style="padding:8px;background:#f0f2f8;border:1px solid #dde2ec;text-align:center;font-size:11px;color:#1a2540;font-weight:700">Catastrófico<br>A</th>
                   <th style="padding:8px;background:#f0f2f8;border:1px solid #dde2ec;text-align:center;font-size:11px;color:#1a2540;font-weight:700">Peligroso<br>B</th>
-                  <th style="padding:8px;background:#f0f2f8;border:1px solid #dde2ec;text-align:center;font-size:11px;color:#1a2540;font-weight:700">Importante<br>C</th>
+                  <th style="padding:8px;background:#f0f2f8;border:1px solid #dde2ec;text-align:center;font-size:11px;color:#1a2540;font-weight:700">Grave<br>C</th>
                   <th style="padding:8px;background:#f0f2f8;border:1px solid #dde2ec;text-align:center;font-size:11px;color:#1a2540;font-weight:700">Leve<br>D</th>
                   <th style="padding:8px;background:#f0f2f8;border:1px solid #dde2ec;text-align:center;font-size:11px;color:#1a2540;font-weight:700">Insignificante<br>E</th>
                 </tr></thead>
@@ -1379,9 +1414,7 @@ select.form-input option { background: var(--bg2); }
             <thead><tr>
               <th>#</th>
               <th>Tipo de Ocurrencia</th>
-              <th>Artículo AAC</th>
               <th>Normativa RAC</th>
-              <th>Artículo CEPA</th>
               <th>Normativa CEPA</th>
             </tr></thead>
             <tbody id="norm-tbody"></tbody>
@@ -1437,34 +1470,24 @@ select.form-input option { background: var(--bg2); }
         <div class="form-group"><label class="form-label">Forma de Reporte</label><input id="e-forma" class="form-input" type="text" placeholder="ej. OUTLOOK/REPORTES AGA/..."></div>
         <div class="form-row">
           <div class="form-group"><label class="form-label">Tipo de Ocurrencia</label>
-            <select id="e-tipo" class="form-input" onchange="autoFillNormativaEditar(this.value)">
-              <option value="">— Seleccionar —</option>
-              <option>CONDICIONES INSEGURAS EN PROYECTOS EN AREAS DE MOVIMIENTO</option>
-              <option>DAÑOS A INSTALACIONES AEROPORTUARIAS</option>
-              <option>DERRAME DE COMBUSTIBLE EN ÁREA DE MOVIMIENTO</option>
-              <option>EQUIPO DE APOYO TERRESTRE EN MAL ESTADO</option>
-              <option>FALLA EN PUENTE DE ABORDAJE</option>
-              <option>FAUNA EN EL ÁREA DE MOVIMIENTO</option>
-              <option>FOD EN PISTA</option>
-              <option>ILUMINACIÓN DEFICIENTE</option>
-              <option>IMPACTO AVES CONFIRMADOS FUERA DEL AIES-SOARG</option>
-              <option>IMPACTOS DE AVES (INCIDENTES INDETERMINADOS)</option>
-              <option>IMPACTOS DE AVES CONFIRMADOS</option>
-              <option>IMPACTOS DE AVES NO CONFIRMADOS</option>
-              <option>IMPACTOS DE FAUNA EN AERONAVES (NO AVES)</option>
-              <option>MAL PROCEDIMIENTO DE APOYO TERRESTRE</option>
-              <option>MALEZA ALTA EN AREA DE MOVIMIENTO</option>
-              <option>SEÑALIZACION HORIZONTAL DEFICIENTE</option>
-              <option>SEÑALIZACION VERTICAL DEFICIENTE</option>
-              <option>SUCIEDAD Y VEGETACIÓN ALTA EN AREA DE PERIMETRO</option>
-            </select>
+            <div style="display:flex;gap:6px;align-items:flex-start">
+              <select id="e-tipo" class="form-input" onchange="autoFillNormativaEditar(this.value)" style="flex:1"></select>
+              <button type="button" onclick="abrirAgregarTipo('editar')" title="Agregar nuevo tipo de ocurrencia"
+                style="flex-shrink:0;padding:8px 12px;border-radius:6px;border:1px solid var(--cepa-gold);background:rgba(201,162,39,.1);color:var(--cepa-gold);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;height:38px;display:flex;align-items:center;gap:4px">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="13" height="13"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                Nuevo
+              </button>
+            </div>
           </div>
           <div class="form-group"><label class="form-label">Tipo de Reporte</label>
-            <select id="e-tiporeporte" class="form-input">
-              <option value="">— Seleccionar —</option>
-              <option>ACCIDENTE</option><option>INCIDENTE</option><option>PELIGRO</option>
-              <option>INCURSION EN PISTA</option><option>EXCURSION DE PISTA</option>
-            </select>
+            <div style="display:flex;gap:6px;align-items:flex-start">
+              <select id="e-tiporeporte" class="form-input" style="flex:1"></select>
+              <button type="button" onclick="abrirAgregarTipoReporte('editar')" title="Agregar nuevo tipo de reporte"
+                style="flex-shrink:0;padding:8px 12px;border-radius:6px;border:1px solid var(--cepa-teal2);background:rgba(0,153,153,.08);color:var(--cepa-teal);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;height:38px;display:flex;align-items:center;gap:4px">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="13" height="13"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                Nuevo
+              </button>
+            </div>
           </div>
         </div>
         <div class="form-group"><label class="form-label">Descripción / Texto del Reporte</label>
@@ -1487,7 +1510,7 @@ select.form-input option { background: var(--bg2); }
             <select id="e-sev" class="form-input" onchange="calcEditar()">
               <option value="">— Seleccionar —</option>
               <option value="A">A - Catastrófico</option><option value="B">B - Peligroso</option>
-              <option value="C">C - Mayor</option><option value="D">D - Menor</option><option value="E">E - Insignificante</option>
+              <option value="C">C - Grave</option><option value="D">D - Menor</option><option value="E">E - Insignificante</option>
             </select>
           </div>
         </div>
@@ -1655,7 +1678,7 @@ select.form-input option { background: var(--bg2); }
     <div class="modal-foot">
       <button class="btn btn-secondary btn-sm" onclick="downloadTemplate()">↓ Plantilla</button>
       <button class="btn btn-secondary" onclick="closeModal('m-import');resetImport()">Cancelar</button>
-      <button class="btn btn-outline" style="color:#dc2626;border-color:#dc2626" onclick="if(confirm('¿Restaurar la base de datos al estado original del sistema?\n\nEsto borrará todos los cambios de la sesión actual (las versiones nombradas se conservan).')){localStorage.removeItem('sigerpro_db_v1');DB=JSON.parse(JSON.stringify(INITIAL_DATA.filter(r=>r.fecha)));closeModal('m-import');resetImport();renderLista();toast('Base restaurada al estado inicial.','ok');}">Restaurar base original</button>
+      <button class="btn btn-outline" style="color:#dc2626;border-color:#dc2626" onclick="if(confirm('¿Vaciar completamente la base de datos?\n\nEsto eliminará todos los reportes actuales. Esta acción no se puede deshacer.')){localStorage.removeItem('sigerpro_db_v2');DB=[];closeModal('m-import');resetImport();renderLista();renderDashboard();document.getElementById('nb-total').textContent=0;toast('Base vaciada. Importe datos desde Excel o CSV.','ok');}">Vaciar base</button>
       <button class="btn btn-primary" id="imp-btn-save" style="display:none" onclick="confirmarImport()">Importar Datos</button>
     </div>
   </div>
@@ -1667,7 +1690,7 @@ select.form-input option { background: var(--bg2); }
 // ═══════════════════════════════════════════════
 // DATOS INICIALES — EXPORTADOS DEL EXCEL CEPA
 // ═══════════════════════════════════════════════
-const INITIAL_DATA = [{"no":1,"fecha":"2026-01-05","formaReporte":"OUTLOOK/REPORTES AGA/karla.guevara@cepa.gob.sv/Reporte de reflectores que afectan visibilidad de aeronaves en umbral de pista 07 / 02/01/2026 - 17:50 TL","reportadoPor":"KARLA GUEVARA","entidad":"SMS","texto":"SE HA RECIBIDO REPORTE DE TORRE DE CONTROL, DONDE LES REPORTAN LO SIGUIENTE: XXX INFORMÓ A CCR QUE HAY UNOS REFLECTORES EN MANTENIMIENTO QUE MOLESTAN LA VISIBILIDAD. XXX - NOTIFICA QUE LOS REFLECTORES DE MANTENIMIENTO SI SON FACTOR AL MOMENTO DE ESTAR EN EL UMBRAL DE PISTA 07 PARA SALIDA. AL RESPECTO, SOLICITAMOS SU APOYO EN PODER VERIFICAR, ME DICEN QUE SON LOS REFLECTORES DEL HANGAR QUE ESTÁ FRENTE A HOTEL, PARA VER SI LOS PUEDEN COLOCAR CON VISTA MÁS A LA PLATAFORMA.","tipoReporte":"","tipoOcurrencia":"CONDICIONES INSEGURAS EN PROYECTOS EN AREAS DE MOVIMIENTO","regulacion":"RAC 139.405  IDENTIFICACIÓN Y SEÑALIZACIÓN DE ÁREAS EN CONSTRUCCIÓN","normativa":"MA P5 VIII TRABAJOS EN EL AERÓDROMO SEGURIDAD OPERACIONAL","causaRaiz":"","probabilidad":2,"severidad":"C","indiceRiesgo":"2C","acciones":"SE SOLICITO POR MEDIO DE EMAIL A LA EMPRESA AEROMAN QUE  VERIFICARAN LO REPORTADO POR TWR Y EVIDENCIA DE SUPERARDO LA SITUACION","responsabilidad":"AEROMAN","seInvestiga":"NO","seguimientoSMS":"AEROMAN RESPONDIO POR EMAIL EL MISMO DIA ","fechaImpl":"INMEDIATA","indiceResultante":"1C","retroalimentacion":"SE ENVIO EMAIL CON RESPUESTA DE AEROMAN: “INFORMANDO QUE SE CAMBIÓ DE POSICIÓN Y ORIENTACIÓN LA LUMINARIA QUE ESTABA GENERANDO AFECTACIÓN HACIA PISTA ACTIVA”. FAVOR SI TIENEN OBSERVACIONES ADICIONALES NOS LO HACEN SABER.","numTabulacion":1,"procesadoRSC":"NO","estado":"CIERRE","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":2,"fecha":"2026-01-07","formaReporte":"OUTLOOK/REPORTES AGA/sergio.villacorta@cepa.gob.sv/Derrames  de combustible / 12/01/2026 - 08:29 TL","reportadoPor":"SERGIO VILLACORTA","entidad":"OPERACIONES AIES-SOARG","texto":"EL OBJETIVO DE ESTE CORREO ES PARA PODER DEJAR UNA COORDINACIÓN QUE NOS PERMITA GENERAR UN REPORTE QUE AYUDE A CUMPLIR CON LA INSTRUCCIÓN DE LA ADMINISTRACIÓN RESPECTO AL TEMA DE LOS DERRAMES QUE SE PRODUCEN EN EL LADO AIRE, EN LAS PLATAFORMAS SE DAN EVENTOS DE DERRAMES DE ACEITE, COMBUSTIBLE PRODUCTO DE FALLAS EN LOS EQUIPOS O POR MALA MANIPULACIÓN. CUANDO TENEMOS UN DERRAME GENERADO EN EL LADO AIRE LA INSTRUCCIÓN ES QUE SE LES COBRE, SIN EMBARGO, LA LIMPIEZA LA REALIZA EL APOYO TERRESTRE, PERO","tipoReporte":"","tipoOcurrencia":"DERRAME DE COMBUSTIBLE EN ÁREA DE MOVIMIENTO","regulacion":"RAC 139.320  ÁREAS PAVIMENTADAS.","normativa":"MA P5 VII MANTENIMIENTO DEL ÁREA DE MOVIMIENTO","causaRaiz":"","probabilidad":5,"severidad":"B","indiceRiesgo":"5B","acciones":"LA EMPRESA DE APOYO TERRESTRE A REALIZADO LA LIMPIEZA DEL DERRAME.","responsabilidad":"ADES","seInvestiga":"SI","seguimientoSMS":"SE REALIZO INVESTIGACION SOBRE ESTE EVENTO Y SE ENVIO LOS RESULTADOS CORRESPONDIENTES A LAS AREAS INVOLUCRADAS.","fechaImpl":"INMEDIATA","indiceResultante":"5D","retroalimentacion":"SE ENVIO EMAIL ADJUNTANDO LA INVESTIGACION Y RECOMENDACIONES AL DEPARTAMENTO DE OPERACIONES Y A LA SECCION DE MOVIMIENTO TERRESTRE ","numTabulacion":1,"procesadoRSC":"NO","estado":"CIERRE","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":3,"fecha":"2026-01-07","formaReporte":"OUTLOOK/REPORTES AGA/edward.benitez@cepa.gob.sv/Resultado de Inspección Franjas de pista y calles de rodaje. / 07/01/2026 - 14:32 TL","reportadoPor":"EDWARD BENÍTEZ","entidad":"OPERACIONES AIES-SOARG","texto":"SE ANEXA RESULTADO DE INSPECCIÓN FRANJAS DE PISTA Y CALLES DE RODAJE  REALIZADA EL PASADO 06 DE ENERO DE 2026  DONDE SE DETECTARON  DIEZ (10) OBSERVACIONES.  AGRADECEREMOS ENVIAR EL PLAN DE ACCIÓN EN EL FORMULARIO  ESTABLECIDO PARA SOLVENTAR LAS OBSERVACIONES DETECTADAS.","tipoReporte":"","tipoOcurrencia":"MALEZA ALTA EN AREA DE MOVIMIENTO","regulacion":"RAC 139.325  ÁREAS NO PAVIMENTADAS","normativa":"MA P5 VII MANTENIMIENTO DEL ÁREA DE MOVIMIENTO","causaRaiz":"","probabilidad":3,"severidad":"D","indiceRiesgo":"3D","acciones":"SE REALIZO INSPECCION DE FRANJAS DE PISTA Y CALLES DE RODAJE EN LO CUAL SE SOLICITO SUPERAR LAS OBSERVACIONES Y QUE ENVIARAN PLAN DE ACCION.","responsabilidad":"SECCION AREAS VERDES/DEPARTAMENTO DE MANTENIMIENTO","seInvestiga":"NO","seguimientoSMS":"SE SOLICITO POR EMAIL A LOS INVOLUCRADOS, SUPERAR LAS OBSERVACIONES ENCONTRADAS A LA MAYOR BREVEDAD POSIBLE.","fechaImpl":"INMEDIATA","indiceResultante":"3E","retroalimentacion":"SE ENVIO EMAIL CON PLAN DE ACCION YA REALIZADO POR PARTE DE LOS INVOLUCRADOS","numTabulacion":1,"procesadoRSC":"NO","estado":"CIERRE","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":4,"fecha":"2026-01-08","formaReporte":"OUTLOOK/REPORTES AGA/sergio.villacorta@cepa.gob.sv/RE: Costos de reparación y reinstalación de bandeja puente 19 / 08/01/2026 - 13:33 TL","reportadoPor":"SERGIO VILLACORTA","entidad":"OPERACIONES AIES-SOARG","texto":"EL DÍA 07 DE ENERO DEL 2026 APROXIMADAMENTE A LAS 19:57 SE VERIFICO REPORTE HECHO POR LA EMPRESA DE APOYO TERRESTRE AIRSUPPORT DONDE UNO DE SUS COLABORADORES ELVIS EDENILSON BARRERA BOLAÑOS CON CARNET AIRS-282 TUVO UN PERCANCE AL SER EL CONDUCTOR DE UN TRACTOR CORRELATIVO 102020 QUE LLEVABA REMOLCADA UNA ESCALERA CORRELATIVO 0109012 EN EL CUAL RELATO QUE NO RECORDABA EL EQUIPO QUE LLEVABA REMOLCADO DE POSICIÓN 20 A LA 12, POR TANTO AL PASAR DEBAJO DEL PUENTE 19 LA ESCALERA IMPACTO CON ESTRUCTURA","tipoReporte":"","tipoOcurrencia":"DAÑOS A INSTALACIONES AEROPORTUARIAS","regulacion":"NO APLICA","normativa":"NSOAM B-9 NORMAS EN CASOS DE ACCIDENTES","causaRaiz":"","probabilidad":3,"severidad":"C","indiceRiesgo":"3C","acciones":"AL LUGAR SE PRESENTÓ TÉCNICO DE LA SUBESTACIÓN 1 KEVIN, ROGELIO MÁS PERSONAL DE MANTENIMIENTO DEL ÁREA DE CARPINTERÍA A PERCATAR LOS DAÑOS DEL CABLEADO VERIFICANDO DICHA FALLA Y SOLVENTÁNDOLA A LAS 21:11.","responsabilidad":"EMPRESA DE APOYO TERRESTRE","seInvestiga":"SI","seguimientoSMS":"SE ENVIO EMAIL SOLICITANDO LA INVESTIGACION POR PARTE DE LA EMPRESA DE APOYO TERRESTRE SOBRE ESTE INCIDENTE.","fechaImpl":"INMEDIATA","indiceResultante":"3D","retroalimentacion":"SE ENVIO EMAIL ADJUNTANDO LA INVESTIGACION Y RECOMENDACIONES AL DEPARTAMENTO DE OPERACIONES Y A LA SECCION DE MOVIMIENTO TERRESTRE ","numTabulacion":1,"procesadoRSC":"NO","estado":"CIERRE","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":5,"fecha":"2026-01-08","formaReporte":"OUTLOOK/REPORTES AGA/sergio.villacorta@cepa.gob.sv/RE: Costos de reparación y reinstalación de bandeja puente 19 / 08/01/2026 - 13:33 TL","reportadoPor":"SERGIO VILLACORTA","entidad":"OPERACIONES AIES-SOARG","texto":"APROXIMADAMENTE A LAS 18:00 UN TRACTOR DE REMOLQUE DE AIRSUPPORT COLISIONO CON BASE DE COLUMNA DEL EDIFICIO, EN LA MANIOBRA DE REPOSICIONAMIENTO DEL EQUIPO HACIA LA AERONAVE DE FRONTIER EN LA POSICION 3. INTENTO PASAR CON EL TRACTOR ENTRE LA COLUMNA Y UN VEHÍCULO ESTACIONADO EN EL LUGAR, LOGRO PASAR CON EL TRACTOR DE REMOLQUE SIN EMBARGO IMPACTO CON LA BASE DE LA COLUMNA, DESPRENDIENDO LA PLATINA DE ACERO DE PROTECCIÓN Y DAÑANDO EL REVOQUE (REPELLO) DE LA COLUMNA.","tipoReporte":"","tipoOcurrencia":"DAÑOS A INSTALACIONES AEROPORTUARIAS","regulacion":"NO APLICA","normativa":"NSOAM B-9 NORMAS EN CASOS DE ACCIDENTES","causaRaiz":"","probabilidad":3,"severidad":"C","indiceRiesgo":"3C","acciones":"SE LE INFORMO AL PERSONAL DE LA EMPRESA (SUP. JUAN VILLALTA) QUE DEBERAN ASUMIR LOS COSTOS POR LOS DAÑOS PROVOCADOS.","responsabilidad":"EMPRESA DE APOYO TERRESTRE","seInvestiga":"SI","seguimientoSMS":"SE ENVIO EMAIL SOLICITANDO LA INVESTIGACION POR PARTE DE LA EMPRESA DE APOYO TERRESTRE SOBRE ESTE INCIDENTE.","fechaImpl":"INMEDIATA","indiceResultante":"3D","retroalimentacion":"SE ENVIO EMAIL ADJUNTANDO LA INVESTIGACION Y RECOMENDACIONES AL DEPARTAMENTO DE OPERACIONES Y A LA SECCION DE MOVIMIENTO TERRESTRE ","numTabulacion":1,"procesadoRSC":"NO","estado":"CIERRE","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":6,"fecha":"2026-01-12","formaReporte":"OUTLOOK/REPORTES AGA/sergio.villacorta@cepa.gob.sv/Derrames  de combustible / 12/01/2026 - 08:29 TL","reportadoPor":"SERGIO VILLACORTA","entidad":"OPERACIONES AIES-SOARG","texto":"EL DÍA DE HOY, APROXIMADAMENTE A LAS 20:17 LT, SE OBSERVÓ UN DERRAME DE COMBUSTIBLE EN LA POSICIÓN 19A. EL SR. ULISES GONZALES, TÉCNICO DE MANTENIMIENTO DE AIRSUPPORT, INFORMÓ QUE ES LA VÁLVULA DE DRENAJE DE AGUA UBICADA EN LA IZQUIERDA, EN EL COMPARTIMIENTO DE COMBUSTIBLE, POR LO QUE PROVOCÓ UN DERRAME DE APROXIMADAMENTE 4 METROS DE DIÁMETRO EN LA PLATAFORMA.","tipoReporte":"","tipoOcurrencia":"DERRAME DE COMBUSTIBLE EN ÁREA DE MOVIMIENTO","regulacion":"RAC 139.320  ÁREAS PAVIMENTADAS.","normativa":"MA P5 VII MANTENIMIENTO DEL ÁREA DE MOVIMIENTO","causaRaiz":"","probabilidad":5,"severidad":"B","indiceRiesgo":"5B","acciones":"EL ENCARGADO DE VUELO, SR. ULISES RECINOS (ADES), CONTUVO EL DERRAME DE FORMA INMEDIATA CON MATERIAL SPILL SKLING. SE INFORMÓ A LA SRITA. GRACIELA LUNA, REPRESENTANTE DE IBERIA, QUE DEBERÁN ASUMIR LOS POSIBLES DAÑOS AL CONCRETO HIDRÁULICO POSTERIOR A LA EVALUACIÓN DEL PERSONAL DE MANTENIMIENTO.","responsabilidad":"EMPRESA DE APOYO TERRESTRE","seInvestiga":"SI","seguimientoSMS":"SE ENVIO EMAIL SOLICITANDO LA INVESTIGACION POR PARTE DE LA EMPRESA DE APOYO TERRESTRE SOBRE ESTE INCIDENTE.","fechaImpl":"INMEDIATA","indiceResultante":"5D","retroalimentacion":"SE ENVIO EMAIL ADJUNTANDO LA INVESTIGACION Y RECOMENDACIONES AL DEPARTAMENTO DE OPERACIONES Y A LA SECCION DE MOVIMIENTO TERRESTRE ","numTabulacion":1,"procesadoRSC":"NO","estado":"CIERRE","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":7,"fecha":"2026-01-12","formaReporte":"OUTLOOK/REPORTES AGA/sergio.villacorta@cepa.gob.sv/Derrames  de combustible / 12/01/2026 - 08:29 TL","reportadoPor":"SERGIO VILLACORTA","entidad":"OPERACIONES AIES-SOARG","texto":"MIÉRCOLES 7 ENERO 2026, APROXIMADAMENTE A LAS 08:45 LT, SE OBSERVÓ UN DERRAME DE COMBUSTIBLE EN LA POSICIÓN 22. EL SR. FRANCISCO ALMENDAREZ, PERSONAL DE UNO AVIATION, INFORMÓ QUE EL PILOTO ABRIÓ LA VÁLVULA UBICADA EN EL ALA DERECHA, EN EL COMPARTIMIENTO DE COMBUSTIBLE, LO QUE PROVOCÓ UN DERRAME DE APROXIMADAMENTE 4 METROS DE CUADRADOS EN LA PLATAFORMA. AL MOMENTO QUE EL PILOTO ABRIÓ LA VÁLVULA EL EQUIPO DE UNO AVIATION NO ESTABA ACOPLADO A LA AERONAVE POR LO QUE EL PERSONAL DE UNO AVIATION NO TI","tipoReporte":"","tipoOcurrencia":"DERRAME DE COMBUSTIBLE EN ÁREA DE MOVIMIENTO","regulacion":"RAC 139.320  ÁREAS PAVIMENTADAS.","normativa":"MA P5 VII MANTENIMIENTO DEL ÁREA DE MOVIMIENTO","causaRaiz":"","probabilidad":5,"severidad":"B","indiceRiesgo":"5B","acciones":"PERSONAL DE ASE LIMPIÓ POR COMPLETO EL COMBUSTIBLE DERRAMADO Y EL ÁREA QUEDA PENDIENTE DE LA EVALUACIÓN DE DAÑOS EN EL CONCRETO POR PARTE DE LA SECCIÓN DE OBRAS CIVILES.","responsabilidad":"EMPRESA DE APOYO TERRESTRE","seInvestiga":"SI","seguimientoSMS":"SE ENVIO EMAIL SOLICITANDO LA INVESTIGACION POR PARTE DE LA EMPRESA DE APOYO TERRESTRE SOBRE ESTE INCIDENTE.","fechaImpl":"INMEDIATA","indiceResultante":"5D","retroalimentacion":"SE ENVIO EMAIL ADJUNTANDO LA INVESTIGACION Y RECOMENDACIONES AL DEPARTAMENTO DE OPERACIONES Y A LA SECCION DE MOVIMIENTO TERRESTRE ","numTabulacion":1,"procesadoRSC":"NO","estado":"CIERRE","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":8,"fecha":"2026-01-14","formaReporte":"OUTLOOK/REPORTES AGA/sergio.villacorta@cepa.gob.sv/RV: Reportes puete 6 - 13JAN26 / 14/01/2026 - 13:39 TL","reportadoPor":"SERGIO VILLACORTA","entidad":"OPERACIONES AIES-SOARG","texto":"DURANTE EL DESACOPLE DEL PUENTE 6 EN EL VUELO AV530 DE FECHA 13/01/26 A LAS 17:21 SE PRESENTA UN DAÑO EN LA CAPOTA DEL LADO DERECHO DEL PUENTE, POSTERIORMENTE SE ROMPE UNA PIEZA DE AJUSTE DE ESE LADO, BAJANDO LA CAPOTA EN LA AERONAVE, DIFICULTANDO ASÍ EL DESACOPLE DEL MISMO, SIN DAÑAR EL EQUIPO.","tipoReporte":"","tipoOcurrencia":"FALLA EN PUENTE DE ABORDAJE","regulacion":"NO APLICA","normativa":"MANUAL DE OPERACIÓN PUENTES","causaRaiz":"","probabilidad":5,"severidad":"C","indiceRiesgo":"5C","acciones":"EN EL MOMENTO SE PRESENTA OFICIAL DE RAMPA Y TÉCNICOS PARA PODER REALIZAR EL DESACOPLE DE FORMA MANUAL, DEJANDO EL PUENTE INOPERATIVO","responsabilidad":"SECCION PUENTES DE ABORDAJE/ MANTENIMIENTO","seInvestiga":"NO","seguimientoSMS":"","fechaImpl":"INMEDIATA","indiceResultante":"","retroalimentacion":"","numTabulacion":1,"procesadoRSC":"NO","estado":"CIERRE","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":9,"fecha":"2026-01-16","formaReporte":"OUTLOOK/REPORTES AGA/karla.guevara@cepa.gob.sv/RV: REGISTRO 1 RESTRICCIÓN DE CIRCULACION  DE EQUIPOS QUE PRESENTO FALLA EN EL AREA AERONAUTICA ASG 0109004 RI / 16/01/2026 - 08:57 TL","reportadoPor":"KARLA GUEVARA","entidad":"SMS","texto":"SE IDENTIFICA EQUIPO ASG 0109004 ESCALERA, EN POSICIÓN 20 CALLE DE SERVICIO CON PROBLEMAS DE RUEDA, SE INFORMÓ AL SR. MARIO MARROQUIN QUE EL EQUIPO SE RESTRINGE DE INGRESAR AL ÁREA DE MOVIMIENTO Y SE ADJUNTA FORMULARIO QUE DEBERÁN COMPLETAR PARA QUE EL VEHÍCULO PUEDA REINGRESAR AL ÁREA DE MOVIMIENTO HASTA QUE SE DÉ EL VISTO BUENA DE LAS REVISIONES CORRESPONDIENTES.","tipoReporte":"","tipoOcurrencia":"EQUIPO DE APOYO TERRESTRE EN MAL ESTADO","regulacion":"RAC 139.375  VEHÍCULOS","normativa":"NSOAM C-2 CONDICIONES DE ACCESO","causaRaiz":"","probabilidad":4,"severidad":"C","indiceRiesgo":"4C","acciones":"VEHÍCULO RESTRINGIDO NO PUEDE VOLVER A INCORPORARSE AL ÁREA CONTROLADA.","responsabilidad":"AIRSUPPORT","seInvestiga":"NO","seguimientoSMS":"PENDIENTE","fechaImpl":"INMEDIATA","indiceResultante":"","retroalimentacion":"SE CONSULTA Y SE SOLICITA A SEHO QUE NOTIFIQUE CUANDO ES SUPERE LA RESTRICCION","numTabulacion":1,"procesadoRSC":"NO","estado":"SEGUIMIENTO","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":10,"fecha":"2026-01-16","formaReporte":"OUTLOOK/REPORTES AGA/edward.benitez@cepa.gob.sv/Coordinación para eliminar atrayente de aves. / 16/01/2026 - 16:15 TL","reportadoPor":"EDWARD BENÍTEZ","entidad":"OPERACIONES AIES-SOARG","texto":"ESTE DÍA DURANTE LA INSPECCIÓN DE DRENAJES SE DETECTÓ UN ATRAYENTE AVES EN EL COSTADO ORIENTE DE LA POSICIÓN 01 DE LA PLATAFORMA INTERNACIONAL. EL DRENAJE CA-34-1 SE ENCUENTRA OBSTRUIDO POR ACUMULACIÓN DE SEDIMENTOS. EN EL SECTOR SE OBSERVÓ LA PRESENCIA DE DOS ESPECIES DE AVES ( GARZA VERDE Y GARZÓN BLANCO)  AMBAS ESPECIES SE ENCONTRABAN BUSCANDO ALIMENTO YA QUE EN EL AGUA ESTANCADA SE OBSERVA PRESENCIA DE PECES PEQUEÑOS. AGRADECEREMOS A LA BREVEDAD POSIBLE PROGRAMAR TRABAJOS  PARA QUE AGUA PUED","tipoReporte":"","tipoOcurrencia":"FAUNA EN EL ÁREA DE MOVIMIENTO","regulacion":"RAC 139.395  REDUCCIÓN DE PELIGROS DEBIDOS A LAS AVES Y OTROS ANIMALES","normativa":"MA P5 XII GESTIÓN DEL PELIGRO DE LA FAUNA","causaRaiz":"","probabilidad":3,"severidad":"B","indiceRiesgo":"3B","acciones":"SE ENVIO EMAIL A JEFATURA DE OBRAS CIVILES Y A SECCION DE AREAS VERDES Y FAUNA SOLICITADO SUPERAR LA OBSERVACION.","responsabilidad":"JEFATURA OBRAS CIVILES/ FAUNA","seInvestiga":"NO","seguimientoSMS":"REUNION CON SECCION DE CONTROL DE FAUNA","fechaImpl":"INMEDIATA","indiceResultante":"","retroalimentacion":"PENDIENTE","numTabulacion":1,"procesadoRSC":"NO","estado":"SEGUIMIENTO","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":11,"fecha":"2026-01-18","formaReporte":"OUTLOOK/REPORTES AGA/oficiales.rampa@cepa.gob.sv/RESTRICCION DE INGRESO DE EQUIPO OPT.01.0053 AL LADO AIRE. / 18/01/2026 - 18:18 TL","reportadoPor":"OFICIALES DE RAMPA","entidad":"OPERACIONES TERESTRES","texto":"POR MEDIO DE LA PRESENTE SE INFORMA QUE, A PARTIR DEL DÍA SABADO 17 ENERO 2026, QUEDA RESTRINGIDO EL INGRESO AL LADO AIRE DEL EQUIPO OPT.01.0053, DEBIDO A FALLA EN MOTOR DE ARRANQUE","tipoReporte":"","tipoOcurrencia":"EQUIPO DE APOYO TERRESTRE EN MAL ESTADO","regulacion":"RAC 139.375  VEHÍCULOS","normativa":"NSOAM C-2 CONDICIONES DE ACCESO","causaRaiz":"","probabilidad":4,"severidad":"C","indiceRiesgo":"4C","acciones":"VEHÍCULO RESTRINGIDO NO PUEDE VOLVER A INCORPORARSE AL ÁREA CONTROLADA.","responsabilidad":"AVIANCA","seInvestiga":"NO","seguimientoSMS":"PENDIENTE","fechaImpl":"INMEDIATA","indiceResultante":"","retroalimentacion":"PENDIENTE","numTabulacion":1,"procesadoRSC":"NO","estado":"SEGUIMIENTO","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":12,"fecha":"2026-01-19","formaReporte":"OUTLOOK/REPORTES AGA/edward.benitez@cepa.gob.sv/Resultado de  inspección Ayudas Visuales y Sistemas Eléctricos - Señales de fecha  16.01.2026 / 19/01/2026 - 16:22 TL","reportadoPor":"EDWARD BENÍTEZ","entidad":"OPERACIONES AIES-SOARG","texto":"EJE DE PISTA DESDE TOMA DE CONTACTO PISTA 07 HASTA TWY “E” CON ACUMULACIÓN DE CAUCHO. EJE DE PISTA DECOLORADO DESDE TWY “E” HASTA TWY “B”. EJE DE PISTA DESDE TOMA DE CONTACTO DE PISTA 25 HASTA TWY “B” CON ACUMULACIÓN DE CAUCHO. EJES DE CALLE DE RODAJE EN PISTA DECOLORADOS EN INTERSECCIONES “E” “D”, “C”, “B”. SEÑAL DIRECCIONAL DE PUESTO DE ESTACIONAMIENTO DECOLORADO.","tipoReporte":"","tipoOcurrencia":"SEÑALIZACION HORIZONTAL DEFICIENTE","regulacion":"RAC 14.410  Señales","normativa":"MA P5 VII MANTENIMIENTO DEL ÁREA DE MOVIMIENTO","causaRaiz":"","probabilidad":3,"severidad":"C","indiceRiesgo":"3C","acciones":"SE ENVIO EMAIL A JEFATURA DE OBRAS CIVILES, SOLICITADO SUPERAR LA OBSERVACION.","responsabilidad":"JEFATURA OBRAS CIVILES","seInvestiga":"NO","seguimientoSMS":"PENDIENTE","fechaImpl":"INMEDIATA","indiceResultante":"","retroalimentacion":"SE ENVIO EMAIL CON LOS RESULTYADOS DE SUPERACION DEL HALLASGO","numTabulacion":1,"procesadoRSC":"NO","estado":"CIERRE","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":13,"fecha":"2026-01-19","formaReporte":"OUTLOOK/REPORTES AGA/edward.benitez@cepa.gob.sv/Resultado de inspección Drenajes del Aeródromo de fecha 16.01.2026  / 19/01/2026 - 16:22 TL","reportadoPor":"EDWARD BENÍTEZ","entidad":"OPERACIONES AIES-SOARG","texto":"1. CANAL COSTADO ORIENTE DEL UMBRAL 25 (CA-100´) ACUMULACIÓN DE VEGETACIÓN SOBRE MALLA. MALEZA EN CRECIMIENTO DENTRO DE DRENAJE, 2. CANAL COSTADO ORIENTE DEL UMBRAL 25 (CA-100´) MALLA SOBRE DRENAJE CON RUPTURAS Y DESGARROS. 3.CANAL COSTADO PONIENTE DEL UMBRAL 07(CA-1) MALLA SOBRE DRENAJE CON RUPTURAS Y DESGARROS. 4. CANAL COSTADO PONIENTE DEL UMBRAL 07 (CA-1) ACUMULACIÓN DE VEGETACIÓN SOBRE MALLA, SE OBSERVA COLAPSO PARCIAL POR EL PESO DE LA VEGETACIÓN.","tipoReporte":"","tipoOcurrencia":"MALEZA ALTA EN AREA DE MOVIMIENTO","regulacion":"RAC 139.325  ÁREAS NO PAVIMENTADAS","normativa":"MA P5 VII MANTENIMIENTO DEL ÁREA DE MOVIMIENTO","causaRaiz":"","probabilidad":3,"severidad":"C","indiceRiesgo":"3C","acciones":"SE ENVIO EMAIL A JEFATURA DE OBRAS CIVILES, SOLICITADO SUPERAR LA OBSERVACION.","responsabilidad":"JEFATURA OBRAS CIVILES/ FAUNA","seInvestiga":"NO","seguimientoSMS":"PENDIENTE","fechaImpl":"INMEDIATA","indiceResultante":"","retroalimentacion":"PENDIENTE","numTabulacion":1,"procesadoRSC":"NO","estado":"SEGUIMIENTO","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":14,"fecha":"2026-01-20","formaReporte":"OUTLOOK/REPORTES AGA/Jose Roberto Bonilla Cuellar <jose.bonilla@avianca.com>/RE: O20184-25 TAI- AIES AIRBRIDGE 10 DEFECTIVE  / 20/01/2026 - 10:38 TL","reportadoPor":"JOSE ROBERTO BONILLA","entidad":"SMS AVIANCA","texto":"\"DESCRIPTION FROM EREPORT IRO22660-25, EN PUENTE 10 SE RECIBIÓ EL VUELO 382 BOG/SAL, AL FINALIZAR DESABORDAJE SE RETIRO PUENTE Y SE COLOCO EN POSICIÓN INICIAL. AL MOVER LA CABINA EL PUENTE GENERO UNA ALARMA EN LA CUAL EL BRAZO NIVELADOR QUEDO DESPLEGADO. SE LLAMO A OFICIALES DE RAMPA Y LLEGO UN TÉCNICO A REVISAR PUENTE. EL PUENTE EMITÍA UNA ALAMAR Y NO SE PODÍA MOVER. ADJUNTO IMAGEN EN LA CUAL SE PUEDE APRECIAR QUE EL PUENTE YA ESTABA RETIRADO DE LA AERONAVE.”","tipoReporte":"","tipoOcurrencia":"FALLA EN PUENTE DE ABORDAJE","regulacion":"NO APLICA","normativa":"MANUAL DE OPERACIÓN PUENTES","causaRaiz":"","probabilidad":5,"severidad":"D","indiceRiesgo":"5D","acciones":"SE ENVIO EMAIL A JEFATURA DE ELECTROMECANICA, SOLICITADO SUPERAR LA OBSERVACION.","responsabilidad":"JEFATURA MANTENIMIENTO/ ELECTROMECANICA","seInvestiga":"NO","seguimientoSMS":"PENDIENTE","fechaImpl":"INMEDIATA","indiceResultante":"","retroalimentacion":"PENDIENTE","numTabulacion":1,"procesadoRSC":"NO","estado":"CIERRE","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":15,"fecha":"2026-01-21","formaReporte":"OUTLOOK/REPORTES AGA/oficiales.rampa@cepa.gob.sv/EQUIPO RENTRINGIDO POR CONATE DE INCENDIO. / 21/01/2026 - 13:20 TL","reportadoPor":"OFICIALES DE RAMPA","entidad":"OPERACIONES TERESTRES","texto":"SE ENVÍA CORRECCIÓN DEL FORMATO DE RESTRICCIÓN DEL EQUIPO L-556. POR MEDIO DE LA PRESENTE SE INFORMA QUE, A PARTIR DEL DÍA 20/01/26, QUEDA RESTRINGIDO EL INGRESO AL LADO AIRE DEL EQUIPO LOADER L-556, DEBIDO A CONATO DE INCENDIO EN EQUIPO ACOPLADO A AERONAVE DURANTE LA OPERACIÓN DE AMERIJET 720.","tipoReporte":"","tipoOcurrencia":"EQUIPO DE APOYO TERRESTRE EN MAL ESTADO","regulacion":"RAC 139.375  VEHÍCULOS","normativa":"NSOAM C-2 CONDICIONES DE ACCESO","causaRaiz":"","probabilidad":3,"severidad":"B","indiceRiesgo":"3B","acciones":"VEHÍCULO RESTRINGIDO NO PUEDE VOLVER A INCORPORARSE AL ÁREA CONTROLADA.","responsabilidad":"AERODESPACHO","seInvestiga":"SI","seguimientoSMS":"SE INSTRUYO AL AUDITOR SMS QUE PROCEDERIA A REALIZAR INVESTIGACION DEL HECHO","fechaImpl":"INMEDIATA","indiceResultante":"","retroalimentacion":"SE CONSULTA Y SE SOLICITA A SEHO QUE NOTIFIQUE CUANDO ES SUPERE LA RESTRICCION","numTabulacion":1,"procesadoRSC":"NO","estado":"SEGUIMIENTO","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":16,"fecha":"2026-01-26","formaReporte":"OUTLOOK/REPORTES AGA/sergio.villacorta@cepa.gob.sv/FOD encontrado por el personal de limpieza durante trabajos en pista/ 26/01/2026 - 09:38 TL","reportadoPor":"SERGIO VILLACORTA","entidad":"OPERACIONES AIES-SOARG","texto":"POR MEDIO DEL SIGUIENTE REPORTE HAGO DE SU CONOCIMIENTO QUE EL DÍA VIERNES 23 DE ENERO DE 2026 A LAS 11:22 LT, SUPERVISOR DE LIMPIEZA CEPA, SEÑOR ÁLVARO ALDANA ENTREGÓ FOD ENCONTRADO EN PISTA MIENTRAS REALIZABAN TRABAJOS DE LIMPIEZA CON BARREDORA. SE TRATA DE UNA ETIQUETA DE MANTENIMIENTO Y UN PERNO QUEBRADO, TIENEN LAS SIGUIENTES DIMENSIONES: • PERNO QUEBRADO: DOS CENTÍMETROS DE DIÁMETRO POR SEIS CENTÍMETROS DE LARGO. • ETIQUETA DE MANTENIMIENTO: SEIS PUNTO CINCO CENTÍMETROS DE ANCHO POR TRECE ","tipoReporte":"","tipoOcurrencia":"FOD EN PISTA","regulacion":"RAC 139.320  ÁREAS PAVIMENTADAS.","normativa":"MA P5 VII MANTENIMIENTO DEL ÁREA DE MOVIMIENTO","causaRaiz":"","probabilidad":5,"severidad":"C","indiceRiesgo":"5C","acciones":"SE CONSULTÓ A PERSONAL DE AEROMAN SOBRE EL FOD EN PISTA E INDICARON QUE LA ETIQUETA DE MANTENIMIENTO EFECTIVAMENTE ES DE SU PERTENENCIA, SIN EMBARGO, INDICARON QUE ES POCO PROBABLE QUE HAYA CAÍDO DE LA AERONAVE EN EL DESPEGUE, DEBIDO A QUE LA ETIQUETA TIENE FECHA DEL AÑO PASADO. INDICAN QUE HAY ALTA","responsabilidad":"AEROMAN","seInvestiga":"SI","seguimientoSMS":"SE INSTRUYO AL AUDITOR SMS QUE PROCEDERIA A REALIZAR INVESTIGACION DEL HECHO","fechaImpl":"INMEDIATA","indiceResultante":"","retroalimentacion":"PENDIENTE","numTabulacion":1,"procesadoRSC":"NO","estado":"SEGUIMIENTO","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":17,"fecha":"2026-01-26","formaReporte":"OUTLOOK/REPORTES AGA/oficiales.rampa@cepa.gob.sv/Restricción de ingreso de equipo OPT.010358 al Lado Aire / 26/01/2026 - 11:41 TL","reportadoPor":"OFICIALES DE RAMPA","entidad":"OPERACIONES TERESTRES","texto":"POR MEDIO DE LA PRESENTE SE INFORMA QUE, A PARTIR DEL DÍA LUNES 26/01/2026, QUEDA RESTRINGIDO EL INGRESO AL LADO AIRE EL EQUIPO OPT.01.0358 DEBIDO A DESGASTE Y FALTA DE PIEZAS DEL ESTABILIZADOR DEL EQUIPO PARA SU ESTACIONAMIENTO .DICHA RESTRICCIÓN FUE NOTIFICADA AL PERSONAL RESPONSABLE, ESPECÍFICAMENTE A LUIS MENJIVAR AGENTE DE OPERACIONES TERRESTRES AVIANCA.","tipoReporte":"","tipoOcurrencia":"EQUIPO DE APOYO TERRESTRE EN MAL ESTADO","regulacion":"RAC 139.375  VEHÍCULOS","normativa":"NSOAM C-2 CONDICIONES DE ACCESO","causaRaiz":"","probabilidad":4,"severidad":"C","indiceRiesgo":"4C","acciones":"VEHÍCULO RESTRINGIDO NO PUEDE VOLVER A INCORPORARSE AL ÁREA CONTROLADA.","responsabilidad":"AVIANCA","seInvestiga":"NO","seguimientoSMS":"PENDIENTE","fechaImpl":"INMEDIATA","indiceResultante":"","retroalimentacion":"SE CONSULTA Y SE SOLICITA A SEHO QUE NOTIFIQUE CUANDO ES SUPERE LA RESTRICCION","numTabulacion":1,"procesadoRSC":"NO","estado":"SEGUIMIENTO","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":18,"fecha":"2026-01-26","formaReporte":"OUTLOOK/REPORTES AGA/Jose Roberto Bonilla Cuellar <jose.bonilla@avianca.com>/CEPA O944-26 TAI- AIES AIRBRIDGE 6 DEFECTIVE  / 26/01/2026 - 20:28 TL","reportadoPor":"JOSE ROBERTO BONILLA","entidad":"SMS AVIANCA","texto":"“DURANTE EL PROCESO DE SALIDA DEL VUELO AV442, UNA VEZ FINALIZADO EL ABORDAJE Y CERRADA LA PUERTA DE LA AERONAVE, SE PROCEDIÓ A RETIRAR EL PUENTE. SIN EMBARGO, SE OBSERVÓ QUE LA CAPOTA DEL LADO DERECHO NO SE RETRAJO CORRECTAMENTE. DE INMEDIATO SE CONTACTÓ AL OFICIAL DE RAMPA, QUIEN LLEGÓ RÁPIDAMENTE AL LUGAR Y POSTERIORMENTE SOLICITÓ EL APOYO DE UN TÉCNICO. LA RESOLUCIÓN TOMÓ ALGUNOS MINUTOS ADICIONALES, YA QUE NO CONTABAN CON LA LLAVE NECESARIA PARA REALIZAR EL MOVIMIENTO MANUAL DEL EQUIPO”.","tipoReporte":"","tipoOcurrencia":"FALLA EN PUENTE DE ABORDAJE","regulacion":"NO APLICA","normativa":"MANUAL DE OPERACIÓN PUENTES","causaRaiz":"","probabilidad":5,"severidad":"C","indiceRiesgo":"5C","acciones":"EN EL MOMENTO SE PRESENTA OFICIAL DE RAMPA Y TÉCNICOS PARA PODER REALIZAR EL DESACOPLE DE FORMA MANUAL, DEJANDO EL PUENTE INOPERATIVO","responsabilidad":"SECCION PUENTES DE ABORDAJE/ MANTENIMIENTO","seInvestiga":"NO","seguimientoSMS":"SE ENVIO EMAIL SOBRE ESTE EVENTO A LA JEFATURA CORRESPONDIENTE DE ELECTROMECANICA.","fechaImpl":"INMEDIATA","indiceResultante":"5D","retroalimentacion":"SE ENVIO EMAIL AL ORIGINADOR CON EL COMENTARIO DE LOS RESULTADOS CORRESPONDIENTES EL 27/01/2026","numTabulacion":1,"procesadoRSC":"NO","estado":"CIERRE","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":19,"fecha":"2026-01-28","formaReporte":"OUTLOOK/REPORTES AGA/jordan herrera <jordan.herrera@cepa.gob.sv>/Resultado Inspección Nocturna Enero 2026 / 28/01/2026 - 11:36 TL","reportadoPor":"JORDÁN ARISTIDES HERRERA","entidad":"INSPECTOR AGA  AIES-SOARG","texto":"POR ESTE MEDIO ADJUNTO EL RESULTADO DE LA INSPECCIÓN NOCTURNA DE LUCES, REALIZADA EL 27 DE ENERO 2026 DONDE SE DETECTARON SIETE (7) OBSERVACIONES NUEVAS, SOLICITANDO DE SU APOYO EN PODER SUPERARLAS Y ENVIARNOS EL PLAN DE ACCIÓN CORRESPONDIENTE PARA SU RESPECTIVO CIERRE.","tipoReporte":"","tipoOcurrencia":"ILUMINACIÓN DEFICIENTE","regulacion":"RAC 14.415  Luces","normativa":"MA P5 VI AYUDAS VISUALES Y SISTEMAS ELÉCTRICOS","causaRaiz":"","probabilidad":4,"severidad":"D","indiceRiesgo":"4D","acciones":"SE NOTIFICO A LA SECCION ELECTROMECANICA LOS HALLAZGOS POR EMAIL, TAMBIEN A LA JEFATURA DE MANTENIMIENTO","responsabilidad":"SECCION DE ELECTROMECANICA","seInvestiga":"NO","seguimientoSMS":"PENDIENTE","fechaImpl":"INMEDIATA","indiceResultante":"","retroalimentacion":"PENDIENTE","numTabulacion":1,"procesadoRSC":"NO","estado":"SEGUIMIENTO","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":20,"fecha":"2026-01-21","formaReporte":"OUTLOOK/REPORTES AGA/edward.benitez@cepa.gob.sv/Resultado de inspección Drenajes del Aeródromo de fecha 16.01.2026  / 19/01/2026 - 16:22 TL","reportadoPor":"EDWARD BENÍTEZ","entidad":"OPERACIONES AIES-SOARG","texto":"SE ANEXA RESULTADO DE  AYUDAS VISUALES Y SISTEMAS ELÉCTRICOS - LETREROS REALIZADA EL PASADO 20 DE ENERO  DE 2026  DONDE SE DETECTÓ  UNA (1) OBSERVACIÓN.  AGRADECEREMOS ENVIAR EL PLAN DE ACCIÓN EN EL FORMULARIO  ESTABLECIDO PARA SOLVENTAR LA OBSERVACIONES DETECTADAS.","tipoReporte":"","tipoOcurrencia":"SEÑALIZACION VERTICAL DEFICIENTE","regulacion":"RAC 14.420  Letreros","normativa":"MA P5 VII MANTENIMIENTO DEL ÁREA DE MOVIMIENTO","causaRaiz":"","probabilidad":3,"severidad":"D","indiceRiesgo":"3D","acciones":"SE NOTIFICO A LA SECCION ELECTROMECANICA LOS HALLAZGOS POR EMAIL, TAMBIEN A LA JEFATURA DE MANTENIMIENTO","responsabilidad":"SECCION DE ELECTROMECANICA","seInvestiga":"NO","seguimientoSMS":"PENDIENTE","fechaImpl":"INMEDIATA","indiceResultante":"3E","retroalimentacion":"SE ENVIO EMAIL NOTIFICANDO LA SUPERACION DEL HALLAZGO","numTabulacion":1,"procesadoRSC":"NO","estado":"CIERRE","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":21,"fecha":"2026-02-03","formaReporte":"OUTLOOK/REPORTES AGA/oficiales.rampa@cepa.gob.sv/Restriccion de Banda OPT.01.0244/ 03/02/2026 - 08:40 TL","reportadoPor":"OFICIALES DE RAMPA","entidad":"OPERACIONES TERESTRES","texto":"BUENOS DIAS, EN LA POSICION 10 LA BANDA DE EQUIPAJE OPT.01.0244 PRESENTO FALLA EN EL ENCENDIDO DEL EQUIPO POR EL CUAL SE RESTRINGE DE INGRESAR A OPERACIÓN HASTA SOLVENTAR Y PRESENTAR LOS DOCUMENTOS PERTINENTES DE LAS REPARACIONES DE DICHA FALLA.","tipoReporte":"","tipoOcurrencia":"EQUIPO DE APOYO TERRESTRE EN MAL ESTADO","regulacion":"RAC 139.375  VEHÍCULOS","normativa":"NSOAM C-2 CONDICIONES DE ACCESO","causaRaiz":"","probabilidad":5,"severidad":"C","indiceRiesgo":"5C","acciones":"VEHÍCULO RESTRINGIDO NO PUEDE VOLVER A INCORPORARSE AL ÁREA CONTROLADA.","responsabilidad":"AVIANCA","seInvestiga":"NO","seguimientoSMS":"PENDIENTE","fechaImpl":"INMEDIATA","indiceResultante":"","retroalimentacion":"SE CONSULTA Y SE SOLICITA A SEHO QUE NOTIFIQUE CUANDO ES SUPERE LA RESTRICCION","numTabulacion":1,"procesadoRSC":"NO","estado":"SEGUIMIENTO","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":22,"fecha":"2026-02-03","formaReporte":"OUTLOOK/REPORTES AGA/oficiales.rampa@cepa.gob.sv/RESTRICCIÓN DE CIRCULACION DE EQUIPOS QUE PRESENTO FALLA EN EL AREA AERONAUTICA OPT.01.0364/ 03/02/2026 - 08:41 TL","reportadoPor":"OFICIALES DE RAMPA","entidad":"OPERACIONES TERESTRES","texto":"SE ADJUNTA FORMATO DE RESTRICCIÓN DE EQUIPÓ PARA QUE PUEDAN REALIZAR EL PROCESO CORRESPONDIENTE Y PUEDA VOLVER A OPERAR EN LADO AIRE.","tipoReporte":"","tipoOcurrencia":"EQUIPO DE APOYO TERRESTRE EN MAL ESTADO","regulacion":"RAC 139.375  VEHÍCULOS","normativa":"NSOAM C-2 CONDICIONES DE ACCESO","causaRaiz":"","probabilidad":5,"severidad":"C","indiceRiesgo":"5C","acciones":"VEHÍCULO RESTRINGIDO NO PUEDE VOLVER A INCORPORARSE AL ÁREA CONTROLADA.","responsabilidad":"AVIANCA","seInvestiga":"NO","seguimientoSMS":"PENDIENTE","fechaImpl":"INMEDIATA","indiceResultante":"","retroalimentacion":"SE CONSULTA Y SE SOLICITA A SEHO QUE NOTIFIQUE CUANDO ES SUPERE LA RESTRICCION","numTabulacion":1,"procesadoRSC":"NO","estado":"SEGUIMIENTO","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":23,"fecha":"2026-02-03","formaReporte":"OUTLOOK/REPORTES AGA/Flota Tecnica 71 flotatecnica71@avianca.com/O19759-25 - AVA- AIRBRIDGE WRONG OPERATION / 03/02/2026 - 14:59 TL","reportadoPor":"DAVID HIGUERA","entidad":"FLOTA TECNICA AVIANCA 71","texto":"EN EL DESABORDAJE DE AV316 A SAL A LAS 20:30, SE ACOPLA COMO SIEMPRE EL PUENTE EN POSICIÓN 09. UNA VEZ INICIADO DESABORDAJE, EL PUENTE EMITE UNA ALARMA Y MI PERSONA, BAJA CORRIENDO A VERIFICAR EL MOTIVO DE LA ALARMA. PUENTE EMITE ALERTA QUE BRAZO NIVELADOR SE HABÍA REGRESADO A SU POSICIÓN NORMAL CUANDO EL PUENTE ESTÁ EN MODO MANUAL Y EN MODO APAGADO. PROCEDO A APAGARLO Y ENCENDERLO PARA QUE ALARMA SE DESACTIVE, LO QUE FUNCIONÓ. SUBO NUEVAMENTE A VIGILAR EL DESABORDAJE Y UNA VEZ AVANZADO ESTE MIS","tipoReporte":"","tipoOcurrencia":"FALLA EN PUENTE DE ABORDAJE","regulacion":"NO APLICA","normativa":"MANUAL DE OPERACIÓN PUENTES","causaRaiz":"","probabilidad":5,"severidad":"C","indiceRiesgo":"5C","acciones":"EN EL MOMENTO SE PRESENTA OFICIAL DE RAMPA Y TÉCNICOS PARA PODER REALIZAR EL DESACOPLE DE FORMA MANUAL, DEJANDO EL PUENTE INOPERATIVO","responsabilidad":"SECCION PUENTES DE ABORDAJE/ MANTENIMIENTO","seInvestiga":"NO","seguimientoSMS":"SE ENVIO EMAIL SOBRE ESTE EVENTO A LA JEFATURA CORRESPONDIENTE DE ELECTROMECANICA.","fechaImpl":"INMEDIATA","indiceResultante":"5D","retroalimentacion":"SE ENVIO EMAIL AL ORIGINADOR CON EL COMENTARIO DE LOS RESULTADOS CORRESPONDIENTES.","numTabulacion":1,"procesadoRSC":"NO","estado":"CIERRE","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":24,"fecha":"2026-02-04","formaReporte":"OUTLOOK/REPORTES AGA/Jose Roberto Bonilla Cuellar <jose.bonilla@avianca.com>/CEPA O183-26 TAI- AIRBRIDGE 19A WRONG OPERATION/POSITIONING / 04/02/2026 - 16:57 TL","reportadoPor":"JOSE ROBERTO BONILLA","entidad":"SMS AVIANCA","texto":"\"EL DÍA 05/01/2026, AL FINALIZAR EL ABORDAJE DEL VUELO AV368, SE PROCEDIÓ AL DESACOPLE DEL PUENTE 19A Y A SU TRASLADO HACIA LA POSICIÓN HABITUAL INDICADA POR LOS OFICIALES DE RAMPA: JUNTO AL CÍRCULO ROJO, DEJANDO UNA LLANTA SOBRE EL CONCRETO Y LA OTRA SOBRE EL ASFALTO, SEGÚN LAS INSTRUCCIONES PREVIAMENTE ESTABLECIDAS. CON EL FIN DE EVITAR INCONVENIENTES POR LA MANIPULACIÓN DEL EQUIPO, SE CONTACTÓ A LA OFICINA DEL OFICIAL DE RAMPA PARA CONFIRMAR SI DICHA POSICIÓN SEGUÍA SIENDO LA VIGENTE. EL OFIC","tipoReporte":"","tipoOcurrencia":"FALLA EN PUENTE DE ABORDAJE","regulacion":"NO APLICA","normativa":"MANUAL DE OPERACIÓN PUENTES","causaRaiz":"","probabilidad":5,"severidad":"C","indiceRiesgo":"5C","acciones":"EN EL MOMENTO SE PRESENTA OFICIAL DE RAMPA Y TÉCNICOS PARA PODER REALIZAR EL DESACOPLE DE FORMA MANUAL, DEJANDO EL PUENTE INOPERATIVO","responsabilidad":"SECCION PUENTES DE ABORDAJE/ MANTENIMIENTO","seInvestiga":"NO","seguimientoSMS":"SE ENVIO EMAIL SOBRE ESTE EVENTO A LA JEFATURA CORRESPONDIENTE DE ELECTROMECANICA.","fechaImpl":"INMEDIATA","indiceResultante":"5D","retroalimentacion":"SE ENVIO EMAIL AL ORIGINADOR CON EL COMENTARIO DE LOS RESULTADOS CORRESPONDIENTES.","numTabulacion":1,"procesadoRSC":"NO","estado":"CIERRE","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":25,"fecha":"2026-02-12","formaReporte":"OUTLOOK/REPORTES AGA/oficiales.rampa@cepa.gob.sv/Coyote retirado en pista activa Miércoles 11/02/2026/ 12/02/2026 - 16:15 TL","reportadoPor":"OFICIALES DE RAMPA","entidad":"OPERACIONES TERESTRES","texto":"INFORMANDO EVENTO SUCEDIDO EL DIA 11/02/2026 APROXIMADAMENTE A LAS 18:50, CUANDO LA TRIPILACION DE UNA AERONAVE MILITAR CSL REPORTO EL AVISTAMIENTO DE FAUNA EN PISTA ACTIVA, HACIENDOSE PRESENTE EL OFICIAL DE RAMPA RR CESAR CAMPOS JUNTO A FAUNA PARA VERIFICAR LA INFORMACION, SE ENCONTRARON LOS RESTOS DE UN COYOTE FRENTE A CALLE DE RODAJE BRAVO EN PISTA ACTIVA SIENDO DESALOJADO POR PERSONAL DE FAUNA CON INDICATIVO FAUNA 1 Y FAUNA 2.","tipoReporte":"","tipoOcurrencia":"IMPACTOS DE FAUNA EN AERONAVES (NO AVES)","regulacion":"RAC 139.395  REDUCCIÓN DE PELIGROS DEBIDOS A LAS AVES Y OTROS ANIMALES","normativa":"MA P5 XII GESTIÓN DEL PELIGRO DE LA FAUNA","causaRaiz":"","probabilidad":4,"severidad":"B","indiceRiesgo":"4B","acciones":"DESALOJADO POR PERSONAL DE FAUNA CON INDICATIVO FAUNA 1 Y FAUNA 2.","responsabilidad":"AREAS VERDES Y CONTROL DE FAUNA","seInvestiga":"SI","seguimientoSMS":"SE SOLICITO AL AUDITOR DE SMS QUE PROCEDIERA CON LA INVESTIGACION VIA EMAIL EL DIA 12/02/2026.","fechaImpl":"INMEDIATA","indiceResultante":"4C","retroalimentacion":"SE ENVIO RESULTADOS DE LA INVESTIGACION CON RECOMENDACIONES EL DIA 26/02/2026 POR MEDIO DE MEMO SMS","numTabulacion":1,"procesadoRSC":"NO","estado":"CIERRE","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":26,"fecha":"2026-02-13","formaReporte":"OUTLOOK/REPORTES AGA/Erika Georgina Custodio Berrios  erika.custodio@avianca.com/TAI- BIRD STRIKE NO DAMAGE AT SAL MOR O2355-26/ 13/02/2026 - 16:26 TL","reportadoPor":"ERIKA GEORGINA CUSTODIO BERRIOS","entidad":"AVIANCA","texto":"DESCRIPTION FROM EREPORT IRO2678-26: EN APROXIMACIÓN FINAL A LA PISTA 07 UN AVE PEQUEÑA IMPACTO LA AERONAVE EN EL RADOME, SE REPORTA EN LA BITÁCORA","tipoReporte":"","tipoOcurrencia":"IMPACTOS DE AVES NO CONFIRMADOS","regulacion":"RAC 139.395  REDUCCIÓN DE PELIGROS DEBIDOS A LAS AVES Y OTROS ANIMALES","normativa":"MA P5 XII GESTIÓN DEL PELIGRO DE LA FAUNA","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"REPORTARON EL IMPACTO POR EMAIL PERSONAL DE AVIANCA","responsabilidad":"AREAS VERDES Y CONTROL DE FAUNA","seInvestiga":"","seguimientoSMS":"PENDIENTE","fechaImpl":"INMEDIATA","indiceResultante":"","retroalimentacion":"SE ENVIO EMAIL A CONTROL DE FAUNA DEL AIES SOARG","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":27,"fecha":"2026-02-18","formaReporte":"OUTLOOK/REPORTES AGA/oficiales.rampa@cepa.gob.sv/Restricción de ingreso de equipo C 31 de Aerodespachos en Lado Aire 18/02/2026 - 09:29 TL","reportadoPor":"OFICIALES DE RAMPA","entidad":"OPERACIONES TERESTRES","texto":"POR MEDIO DE LA PRESENTE SE INFORMA QUE, A PARTIR DEL DÍA 18/02/2026, QUEDA RESTRINGIDO EL INGRESO AL LADO AIRE EL EQUIPO C-31, DEBIDO A LLANTA TRASERA IZQUIERDA EN MAL ESTADO. DICHA RESTRICCIÓN FUE NOTIFICADA AL PERSONAL RESPONSABLE AL SR. WILLIAM CABRERA JEFE DE CONTROL INTERNO. EN ESE SENTIDO, SE ADJUNTA EL FORMATO CORRESPONDIENTE, EL CUAL DEBERÁ SER DEBIDAMENTE COMPLETADO PARA LA EVALUACIÓN, AUTORIZACIÓN Y POSTERIOR REINGRESO DEL EQUIPO A LAS OPERACIONES, UNA VEZ SUBSANADAS LAS OBSERVACIONES","tipoReporte":"","tipoOcurrencia":"EQUIPO DE APOYO TERRESTRE EN MAL ESTADO","regulacion":"RAC 139.375  VEHÍCULOS","normativa":"NSOAM C-2 CONDICIONES DE ACCESO","causaRaiz":"","probabilidad":5,"severidad":"C","indiceRiesgo":"5C","acciones":"VEHÍCULO RESTRINGIDO NO PUEDE VOLVER A INCORPORARSE AL ÁREA CONTROLADA.","responsabilidad":"AERODESPACHO","seInvestiga":"NO","seguimientoSMS":"PENDIENTE","fechaImpl":"INMEDIATA","indiceResultante":"","retroalimentacion":"SE CONSULTA Y SE SOLICITA A SEHO QUE NOTIFIQUE CUANDO ES SUPERE LA RESTRICCION","numTabulacion":1,"procesadoRSC":"NO","estado":"SEGUIMIENTO","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":28,"fecha":"2026-02-18","formaReporte":"OUTLOOK/REPORTES AGA/oficiales.rampa@cepa.gob.sv/Restricción de ingreso de Camión Catering 24 al Lado Aire. 18/02/2026 - 10:49 TL","reportadoPor":"OFICIALES DE RAMPA","entidad":"OPERACIONES TERESTRES","texto":"POR MEDIO DE LA PRESENTE SE INFORMA QUE, A PARTIR DEL DÍA 18/02/26, QUEDA RESTRINGIDO EL INGRESO AL LADO AIRE DEL EQUIPO CAMIÓN CATERING 24, DEBIDO A FALLA EN UNA MANGUERA QUE OCASIONÓ EL DERRAME DE ACEITE HIDRÁULICO. DICHA RESTRICCIÓN FUE NOTIFICADA AL PERSONAL RESPONSABLE, ESPECÍFICAMENTE A OSCAR ROMERO, SUP DE OPERACIONES. EN ESE SENTIDO, SE ADJUNTA EL FORMATO CORRESPONDIENTE, EL CUAL DEBERÁ SER DEBIDAMENTE COMPLETADO PARA LA EVALUACIÓN, AUTORIZACIÓN Y POSTERIOR REINGRESO DEL EQUIPO A LAS OPE","tipoReporte":"","tipoOcurrencia":"EQUIPO DE APOYO TERRESTRE EN MAL ESTADO","regulacion":"RAC 139.375  VEHÍCULOS","normativa":"NSOAM C-2 CONDICIONES DE ACCESO","causaRaiz":"","probabilidad":5,"severidad":"C","indiceRiesgo":"5C","acciones":"VEHÍCULO RESTRINGIDO NO PUEDE VOLVER A INCORPORARSE AL ÁREA CONTROLADA.","responsabilidad":"GCG","seInvestiga":"NO","seguimientoSMS":"PENDIENTE","fechaImpl":"INMEDIATA","indiceResultante":"","retroalimentacion":"SE CONSULTA Y SE SOLICITA A SEHO QUE NOTIFIQUE CUANDO ES SUPERE LA RESTRICCION","numTabulacion":1,"procesadoRSC":"NO","estado":"SEGUIMIENTO","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":29,"fecha":"2026-02-19","formaReporte":"OUTLOOK/REPORTES AGA/oficiales.rampa@cepa.gob.sv/Restricción de ingreso de equipo tractor 0101005 al Lado Aire. 19/02/2026 - 09:26 TL","reportadoPor":"OFICIALES DE RAMPA","entidad":"OPERACIONES TERESTRES","texto":"POR MEDIO DE LA PRESENTE SE INFORMA QUE, A PARTIR DEL DÍA 19/02/2026, QUEDA RESTRINGIDO EL INGRESO AL LADO AIRE DEL EQUIPO TRACTOR RETROEMPUJE 0101005, DEBIDO A FUGA DE ACEITE. DICHA RESTRICCIÓN FUE NOTIFICADA AL PERSONAL RESPONSABLE, ESPECÍFICAMENTE A JAVIER PALACIOS. EN ESE SENTIDO, SE ADJUNTA EL FORMATO CORRESPONDIENTE, EL CUAL DEBERÁ SER DEBIDAMENTE COMPLETADO PARA LA EVALUACIÓN, AUTORIZACIÓN Y POSTERIOR REINGRESO DEL EQUIPO A LAS OPERACIONES, UNA VEZ REPARADAS LAS FALLAS DETECTADAS. AGRADEC","tipoReporte":"","tipoOcurrencia":"EQUIPO DE APOYO TERRESTRE EN MAL ESTADO","regulacion":"RAC 139.375  VEHÍCULOS","normativa":"NSOAM C-2 CONDICIONES DE ACCESO","causaRaiz":"","probabilidad":5,"severidad":"C","indiceRiesgo":"5C","acciones":"VEHÍCULO RESTRINGIDO NO PUEDE VOLVER A INCORPORARSE AL ÁREA CONTROLADA.","responsabilidad":"AIRSUPPORT","seInvestiga":"NO","seguimientoSMS":"PENDIENTE","fechaImpl":"INMEDIATA","indiceResultante":"","retroalimentacion":"SE CONSULTA Y SE SOLICITA A SEHO QUE NOTIFIQUE CUANDO ES SUPERE LA RESTRICCION","numTabulacion":1,"procesadoRSC":"NO","estado":"SEGUIMIENTO","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":30,"fecha":"2026-02-19","formaReporte":"OUTLOOK/REPORTES AGA/oficiales.rampa@cepa.gob.sv/Eventos en puente en posición 9 MSLP. 19/02/2026 - 15:09 TL","reportadoPor":"CLAUDIA BELLOSO","entidad":"SMS VOLARIS","texto":"VUELO VOS4318 SAL-GUA, AERONAVE N544VL, LA AERONAVE SE ENCONTRABA PERNOCTANDO DESDE EL DÍA ANTERIOR EN POSICIÓN 9 PARA OPERAR EL 15 DE FEB 2026 EN EL VUELO VOS4318 SAL-GUA, ACERCÁNDOSE EL INICIO DE LA OPERACIÓN SE SOLICITA A PERSONAL DE TRÁFICO VOLARIS QUE NOS AYUDEN ACOPLANDO PUENTE PARA PODER INICIAR CON LOS PROCEDIMIENTOS RESPECTIVOS. MI PERSONA SE ENCONTRABA REALIZANDO EL 360° CUANDO NOTÉ EL MOVIMIENTO DEL PUENTE QUE DABA INICIO A LA MANIOBRA PARA ACOPLARLO, TAMBIÉN SE NOTÓ LA PRESENCIA DE U","tipoReporte":"","tipoOcurrencia":"FALLA EN PUENTE DE ABORDAJE","regulacion":"NO APLICA","normativa":"MANUAL DE OPERACIÓN PUENTES","causaRaiz":"","probabilidad":5,"severidad":"C","indiceRiesgo":"5C","acciones":"EN EL MOMENTO SE PRESENTA OFICIAL DE RAMPA Y TÉCNICOS PARA PODER REALIZAR EL DESACOPLE DE FORMA MANUAL, DEJANDO EL PUENTE INOPERATIVO","responsabilidad":"SECCION PUENTES DE ABORDAJE/ MANTENIMIENTO","seInvestiga":"NO","seguimientoSMS":"SE ENVIO EMAIL SOBRE ESTE EVENTO A LA JEFATURA CORRESPONDIENTE DE ELECTROMECANICA.","fechaImpl":"INMEDIATA","indiceResultante":"5D","retroalimentacion":"SE ENVIO EMAIL AL ORIGINADOR CON EL COMENTARIO DE LOS RESULTADOS CORRESPONDIENTES.","numTabulacion":1,"procesadoRSC":"NO","estado":"CIERRE","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":31,"fecha":"2026-02-19","formaReporte":"OUTLOOK/REPORTES AGA/Claudia Ivonne Belloso Cicilia <claudia.belloso@volaris.com>/Eventos en puente en posición 18 MSLP. 19/02/2026 - 15:09 TL","reportadoPor":"CLAUDIA BELLOSO","entidad":"SMS VOLARIS","texto":"SE REPORTA EL FALLO PRESENTADO EN EL PUENTE CORRESPONDIENTE A LA POSICIÓN 18 EL DÍA DE HOY.EN DICHA POSICIÓN SE TENÍA PROGRAMADA LA LLEGADA DEL VUELO N3 4327 IAD–SAL. AL LLEGAR A LA POSICIÓN, REALICÉ LAS PRUEBAS NECESARIAS PREVIO A LA LLEGADA DE LA AERONAVE. UNA VEZ QUE LA AERONAVE ESTUVO EN POSICIÓN, SE ACERCO UN OFICIAL DE RAMPA PARA SUPERVISAR EL ACOPLE, PROCEDIENDO POSTERIORMENTE CON EL MISMO. AL FINALIZAR EL PROCESO DE ACOPLE, ME DIRIGÍ AL TERCER NIVEL PARA EL DESEMBARQUE, CUANDO YA ESTABA ","tipoReporte":"","tipoOcurrencia":"FALLA EN PUENTE DE ABORDAJE","regulacion":"NO APLICA","normativa":"MANUAL DE OPERACIÓN PUENTES","causaRaiz":"","probabilidad":5,"severidad":"C","indiceRiesgo":"5C","acciones":"EN EL MOMENTO SE PRESENTA OFICIAL DE RAMPA Y TÉCNICOS PARA PODER REALIZAR EL DESACOPLE DE FORMA MANUAL, DEJANDO EL PUENTE INOPERATIVO","responsabilidad":"SECCION PUENTES DE ABORDAJE/ MANTENIMIENTO","seInvestiga":"NO","seguimientoSMS":"SE ENVIO EMAIL SOBRE ESTE EVENTO A LA JEFATURA CORRESPONDIENTE DE ELECTROMECANICA.","fechaImpl":"INMEDIATA","indiceResultante":"5D","retroalimentacion":"SE ENVIO EMAIL AL ORIGINADOR CON EL COMENTARIO DE LOS RESULTADOS CORRESPONDIENTES.","numTabulacion":1,"procesadoRSC":"NO","estado":"CIERRE","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":32,"fecha":"2026-02-23","formaReporte":"OUTLOOK/REPORTES AGA/Erika Georgina Custodio Berrios <erika.custodio@avianca.com> /TAI- BIRD STRIKE O3839-26; O3439-26; O3367-26 . 23/02/2026 - 18:00 TL","reportadoPor":"ERIKA GEORGINA CUSTODIO BERRIOS","entidad":"AVIANCA","texto":"CAPITAN HACE LLAMADO ON CALL POR EVIDENCIA DE IMPACTO DE AVE EN MOTOR 1. SE EFECTUAN LAS INSPECCIONES REQUERIDAS POR MANUAL Y NO SE ENCUENTRAN DAÑOS. SE INGRESA A HIL INSPECCION BOROSCOPICA.","tipoReporte":"","tipoOcurrencia":"IMPACTOS DE AVES NO CONFIRMADOS","regulacion":"RAC 139.395  REDUCCIÓN DE PELIGROS DEBIDOS A LAS AVES Y OTROS ANIMALES","normativa":"MA P5 XII GESTIÓN DEL PELIGRO DE LA FAUNA","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":33,"fecha":"2026-02-27","formaReporte":"OUTLOOK/REPORTES AGA/edward.benitez@cepa.gob.sv/Resultado de Inspección de Vallas y caminos de acceso / 27/02/2026 - 13:39 TL","reportadoPor":"EDWARD BENÍTEZ","entidad":"OPERACIONES AIES-SOARG","texto":"SE OBSERVA AGUJERO EN MALLA CICLÓN, SE PRESUME ES PUNTO DE ACCESO DE FAUNA SILVESTRE. SE OBSERVAN AGUJEROS EN LA BASE DE VALLA PERIMETRAL PREFABRICADA","tipoReporte":"","tipoOcurrencia":"DAÑOS A INSTALACIONES AEROPORTUARIAS","regulacion":"NO APLICA","normativa":"NSOAM B-9 NORMAS EN CASOS DE ACCIDENTES","causaRaiz":"","probabilidad":2,"severidad":"A","indiceRiesgo":"2A","acciones":"SE ENVIO EMAIL AL DEPARTAMENTO DE MANTENIMIENTO, OBRAS CIVILES Y GERENCIA INFORMANDO DEL HALLAZGO ","responsabilidad":"OBRAS CIVILES","seInvestiga":"NO","seguimientoSMS":"PENDIENTE","fechaImpl":"INMEDIATA","indiceResultante":"","retroalimentacion":"PENDIENTE","numTabulacion":1,"procesadoRSC":"NO","estado":"SEGUIMIENTO","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":34,"fecha":"2026-03-01","formaReporte":"OUTLOOK/REPORTES AGA/oficiales.rampa@cepa.gob.sv/Restricción de ingreso del equipo Tractor R-5 al Lado Aire. 01/03/2026 - 22:16 TL","reportadoPor":"OFICIALES DE RAMPA","entidad":"OPERACIONES TERESTRES","texto":"POR MEDIO DE LA PRESENTE SE INFORMA QUE, A PARTIR DEL DÍA 01/03/26, QUEDA RESTRINGIDO EL INGRESO AL LADO AIRE EL EQUIPO TRACTOR R-5, DEBIDO A FALLA EN ENCENDIDO POR BLOQUEO EN SISTEMA. DICHA RESTRICCIÓN FUE NOTIFICADA AL PERSONAL RESPONSABLE, ESPECÍFICAMENTE A DEYBIS TURCIOS, JEFE DE TALLER. EN ESE SENTIDO, SE ADJUNTA EL FORMATO CORRESPONDIENTE, EL CUAL DEBERÁ SER DEBIDAMENTE COMPLETADO PARA LA EVALUACIÓN, AUTORIZACIÓN Y POSTERIOR REINGRESO DEL EQUIPO A LAS OPERACIONES, UNA VEZ SUBSANADAS LAS OB","tipoReporte":"","tipoOcurrencia":"EQUIPO DE APOYO TERRESTRE EN MAL ESTADO","regulacion":"RAC 139.375  VEHÍCULOS","normativa":"NSOAM C-2 CONDICIONES DE ACCESO","causaRaiz":"","probabilidad":5,"severidad":"A","indiceRiesgo":"5A","acciones":"LA RESTRICCIÓN FUE NOTIFICADA AL PERSONAL RESPONSABLE.","responsabilidad":"AERODESPACHOS","seInvestiga":"NO","seguimientoSMS":"PENDIENTE","fechaImpl":"INMEDIATA","indiceResultante":"","retroalimentacion":"PENDIENTE","numTabulacion":1,"procesadoRSC":"NO","estado":"SEGUIMIENTO","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":35,"fecha":"2026-03-04","formaReporte":"OUTLOOK/REPORTES AGA/edward.benitez@cepa.gob.sv/Resultado de inspección Drenajes del Aeródromo / 04/03/2026 - 16:02 TL","reportadoPor":"EDWARD BENÍTEZ","entidad":"OPERACIONES AIES-SOARG","texto":"CANAL 13 SE ENCUENTRA OBSTRUIDO POR MONTÍCULO DE TIERRA. DICHO MONTÍCULO FUE UTILIZADO PARA EL DESALOJO DEL MATERIAL RESULTANTE DE LOS TRABAJOS DE AZOLVE DEL CA-1 Y CA-2.","tipoReporte":"","tipoOcurrencia":"SUCIEDAD Y VEGETACIÓN ALTA EN AREA DE PERIMETRO","regulacion":"RAC 139.395  REDUCCIÓN DE PELIGROS DEBIDOS A LAS AVES Y OTROS ANIMALES","normativa":"MA APÉNDICE 6 PROGRAMAS DE MANTENIMIENTO","causaRaiz":"","probabilidad":2,"severidad":"A","indiceRiesgo":"2A","acciones":"SE ENVIO EMAIL AL DEPARTAMENTO DE MANTENIMIENTO, OBRAS CIVILES Y GERENCIA INFORMANDO DEL HALLAZGO ","responsabilidad":"OBRAS CIVILES","seInvestiga":"NO","seguimientoSMS":"PENDIENTE","fechaImpl":"INMEDIATA","indiceResultante":"","retroalimentacion":"PENDIENTE","numTabulacion":1,"procesadoRSC":"NO","estado":"SEGUIMIENTO","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":36,"fecha":"2026-01-31","formaReporte":"OUTLOOK/REPORTES AGA/Fauna AIES <fauna.aies@cepa.gob.sv>/Datos de impactos actualizados / 06/03/2026 - 14:51 TL","reportadoPor":"FAUNA AIES SOARG","entidad":"CONTROL DE FAUNA","texto":"RECORRIDO DE ATERRIZAJE EN PISTA 07. SIN OCASIONAR DAÑOS. N688TA A320\n\n","tipoReporte":"","tipoOcurrencia":"IMPACTOS DE AVES CONFIRMADOS","regulacion":"RAC 139.395  REDUCCIÓN DE PELIGROS DEBIDOS A LAS AVES Y OTROS ANIMALES","normativa":"MA P5 XII GESTIÓN DEL PELIGRO DE LA FAUNA","causaRaiz":"","probabilidad":5,"severidad":"B","indiceRiesgo":"5B","acciones":"REPORTARON EL IMPACTO TWR Y OFICIALES DE RAMPA. ","responsabilidad":"CONTROL DE FAUNA","seInvestiga":"SI","seguimientoSMS":"PENDIENTE","fechaImpl":"INMEDIATA","indiceResultante":"","retroalimentacion":"SE ENVIO EMAIL A CONTROL DE FAUNA DEL AIES SOARG","numTabulacion":1,"procesadoRSC":"NO","estado":"CIERRE","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":37,"fecha":"2026-01-21","formaReporte":"OUTLOOK/REPORTES AGA/Fauna AIES <fauna.aies@cepa.gob.sv>/Datos de impactos actualizados / 06/03/2026 - 14:51 TL","reportadoPor":"FAUNA AIES SOARG","entidad":"CONTROL DE FAUNA","texto":"EN ESTACIONAMIENTO. SIN OCASIONAR DAÑOS. Hk5389 A20N; HALCÓN PEREGRINO.","tipoReporte":"","tipoOcurrencia":"IMPACTO AVES CONFIRMADOS FUERA DEL AIES-SOARG","regulacion":"RAC 139.395  REDUCCIÓN DE PELIGROS DEBIDOS A LAS AVES Y OTROS ANIMALES","normativa":"MA P5 XII GESTIÓN DEL PELIGRO DE LA FAUNA","causaRaiz":"","probabilidad":5,"severidad":"B","indiceRiesgo":"5B","acciones":"REPORTARON EL IMPACTO OFICIALES DE RAMPA. ","responsabilidad":"CONTROL DE FAUNA","seInvestiga":"","seguimientoSMS":"PENDIENTE","fechaImpl":"INMEDIATA","indiceResultante":"","retroalimentacion":"SE ENVIO EMAIL A CONTROL DE FAUNA DEL AIES SOARG","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":38,"fecha":"2026-01-02","formaReporte":"OUTLOOK/REPORTES AGA/Fauna AIES <fauna.aies@cepa.gob.sv>/Datos de impactos actualizados / 06/03/2026 - 14:51 TL","reportadoPor":"FAUNA AIES SOARG","entidad":"CONTROL DE FAUNA","texto":"RECORRIDO DE ATERRIZAJE EN PISTA 07. SIN OCASIONAR DAÑOS. ECMOY A332, DESCONOCIDO.","tipoReporte":"","tipoOcurrencia":"IMPACTOS DE AVES (INCIDENTES INDETERMINADOS)","regulacion":"RAC 139.395  REDUCCIÓN DE PELIGROS DEBIDOS A LAS AVES Y OTROS ANIMALES","normativa":"MA P5 XII GESTIÓN DEL PELIGRO DE LA FAUNA","causaRaiz":"","probabilidad":5,"severidad":"B","indiceRiesgo":"5B","acciones":"REPORTARON EL IMPACTO TWR Y OFICIALES DE RAMPA. ","responsabilidad":"CONTROL DE FAUNA","seInvestiga":"","seguimientoSMS":"PENDIENTE","fechaImpl":"INMEDIATA","indiceResultante":"","retroalimentacion":"PENDIENTE","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":39,"fecha":"2026-01-23","formaReporte":"OUTLOOK/REPORTES AGA/Fauna AIES <fauna.aies@cepa.gob.sv>/Datos de impactos actualizados / 06/03/2026 - 14:51 TL","reportadoPor":"FAUNA AIES SOARG","entidad":"CONTROL DE FAUNA","texto":"RECORRIDO DE ATERRIZAJE EN PISTA 07. SIN OCASIONAR DAÑOS. N097JV, DESCONOCIDO","tipoReporte":"","tipoOcurrencia":"IMPACTOS DE AVES (INCIDENTES INDETERMINADOS)","regulacion":"RAC 139.395  REDUCCIÓN DE PELIGROS DEBIDOS A LAS AVES Y OTROS ANIMALES","normativa":"MA P5 XII GESTIÓN DEL PELIGRO DE LA FAUNA","causaRaiz":"","probabilidad":5,"severidad":"B","indiceRiesgo":"5B","acciones":"REPORTARON EL IMPACTO OFICIALES DE RAMPA. ","responsabilidad":"CONTROL DE FAUNA","seInvestiga":"","seguimientoSMS":"PENDIENTE","fechaImpl":"INMEDIATA","indiceResultante":"","retroalimentacion":"PENDIENTE","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":40,"fecha":"2026-02-03","formaReporte":"OUTLOOK/REPORTES AGA/Fauna AIES <fauna.aies@cepa.gob.sv>/Datos de impactos actualizados / 06/03/2026 - 14:51 TL","reportadoPor":"FAUNA AIES SOARG","entidad":"CONTROL DE FAUNA","texto":"RECORRIDO DE ATERRIZAJE EN PISTA 25. SIN OCASIONAR DAÑOS. N664AV A320, GOLONDRINA (1)","tipoReporte":"","tipoOcurrencia":"IMPACTOS DE AVES (INCIDENTES INDETERMINADOS)","regulacion":"RAC 139.395  REDUCCIÓN DE PELIGROS DEBIDOS A LAS AVES Y OTROS ANIMALES","normativa":"MA P5 XII GESTIÓN DEL PELIGRO DE LA FAUNA","causaRaiz":"","probabilidad":5,"severidad":"B","indiceRiesgo":"5B","acciones":"REPORTARON EL IMPACTO TWR Y OFICIALES DE RAMPA. ","responsabilidad":"CONTROL DE FAUNA","seInvestiga":"","seguimientoSMS":"PENDIENTE","fechaImpl":"INMEDIATA","indiceResultante":"","retroalimentacion":"PENDIENTE","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":41,"fecha":"2026-02-15","formaReporte":"OUTLOOK/REPORTES AGA/Fauna AIES <fauna.aies@cepa.gob.sv>/Datos de impactos actualizados / 06/03/2026 - 14:51 TL","reportadoPor":"FAUNA AIES SOARG","entidad":"CONTROL DE FAUNA","texto":"RECORRIDO DE ATERRIZAJE EN PISTA 25. SIN OCASIONAR DAÑOS. N686TA A320, DESCONOCIDO","tipoReporte":"","tipoOcurrencia":"IMPACTOS DE AVES (INCIDENTES INDETERMINADOS)","regulacion":"RAC 139.395  REDUCCIÓN DE PELIGROS DEBIDOS A LAS AVES Y OTROS ANIMALES","normativa":"MA P5 XII GESTIÓN DEL PELIGRO DE LA FAUNA","causaRaiz":"","probabilidad":5,"severidad":"B","indiceRiesgo":"5B","acciones":"REPORTARON EL IMPACTO OFICIALES DE RAMPA. ","responsabilidad":"CONTROL DE FAUNA","seInvestiga":"","seguimientoSMS":"PENDIENTE","fechaImpl":"INMEDIATA","indiceResultante":"","retroalimentacion":"PENDIENTE","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":42,"fecha":"2026-02-21","formaReporte":"OUTLOOK/REPORTES AGA/Fauna AIES <fauna.aies@cepa.gob.sv>/Datos de impactos actualizados / 06/03/2026 - 14:51 TL","reportadoPor":"FAUNA AIES SOARG","entidad":"CONTROL DE FAUNA","texto":"RECORRIDO DE ATERRIZAJE EN PISTA 25. SIN OCASIONAR DAÑOS. N901AV A20N, DESCONOCIDO","tipoReporte":"","tipoOcurrencia":"IMPACTOS DE AVES (INCIDENTES INDETERMINADOS)","regulacion":"RAC 139.395  REDUCCIÓN DE PELIGROS DEBIDOS A LAS AVES Y OTROS ANIMALES","normativa":"MA P5 XII GESTIÓN DEL PELIGRO DE LA FAUNA","causaRaiz":"","probabilidad":5,"severidad":"B","indiceRiesgo":"5B","acciones":"REPORTARON EL IMPACTO TWR Y AEROLINEA","responsabilidad":"CONTROL DE FAUNA","seInvestiga":"","seguimientoSMS":"PENDIENTE","fechaImpl":"INMEDIATA","indiceResultante":"","retroalimentacion":"PENDIENTE","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":43,"fecha":"2026-02-23","formaReporte":"OUTLOOK/REPORTES AGA/Fauna AIES <fauna.aies@cepa.gob.sv>/Datos de impactos actualizados / 06/03/2026 - 14:51 TL","reportadoPor":"FAUNA AIES SOARG","entidad":"CONTROL DE FAUNA","texto":"RECORRIDO DE ATERRIZAJE EN PISTA 07. SIN OCASIONAR DAÑOS. N319CM B763, DESCONOCIDO","tipoReporte":"","tipoOcurrencia":"IMPACTOS DE AVES (INCIDENTES INDETERMINADOS)","regulacion":"RAC 139.395  REDUCCIÓN DE PELIGROS DEBIDOS A LAS AVES Y OTROS ANIMALES","normativa":"MA P5 XII GESTIÓN DEL PELIGRO DE LA FAUNA","causaRaiz":"","probabilidad":5,"severidad":"B","indiceRiesgo":"5B","acciones":"REPORTARON EL IMPACTO TWR Y OFICIALES DE RAMPA. ","responsabilidad":"CONTROL DE FAUNA","seInvestiga":"","seguimientoSMS":"PENDIENTE","fechaImpl":"INMEDIATA","indiceResultante":"","retroalimentacion":"PENDIENTE","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":44,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":45,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":46,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":47,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":48,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":49,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":50,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":51,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":52,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":53,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":54,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":55,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":56,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":57,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":58,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":59,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":60,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":61,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":62,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":63,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":64,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":65,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":66,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":67,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":68,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":69,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":70,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":71,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":72,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":73,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":74,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":75,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":76,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":77,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":78,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":79,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":80,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":81,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":82,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":83,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":84,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":85,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":86,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":87,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":88,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":89,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"","revisionAAC":""},{"no":90,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"","revisionAAC":""},{"no":91,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"","revisionAAC":""},{"no":92,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"","revisionAAC":""},{"no":93,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":94,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":95,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":96,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":97,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":98,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":99,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":100,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":101,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":102,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":103,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":104,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":105,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":106,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":107,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":108,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":109,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":110,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":111,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":112,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":113,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":114,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":115,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":116,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":117,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":118,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":119,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":120,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":121,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":122,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":123,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":124,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":125,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":126,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":127,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":128,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":129,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":130,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":131,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":132,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":133,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":134,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":135,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":136,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":137,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":138,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":139,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":140,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":141,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":142,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":143,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":144,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":145,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":146,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":147,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":148,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":149,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":150,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":151,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":152,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":153,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":154,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":155,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":156,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":157,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":158,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":159,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":160,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"PENDIENTE","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":161,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"PENDIENTE","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":162,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"PENDIENTE","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":163,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"PENDIENTE","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":164,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"PENDIENTE","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":165,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"PENDIENTE","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":166,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"PENDIENTE","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"NO","estado":"","comentarioAAC":"","aceptacion":"PENDIENTE","revisionAAC":""},{"no":167,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"PENDIENTE","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"","estado":"","comentarioAAC":"","aceptacion":"","revisionAAC":""},{"no":168,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"PENDIENTE","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"","estado":"","comentarioAAC":"","aceptacion":"","revisionAAC":""},{"no":169,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"PENDIENTE","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"","estado":"","comentarioAAC":"","aceptacion":"","revisionAAC":""},{"no":170,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"PENDIENTE","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"","estado":"","comentarioAAC":"","aceptacion":"","revisionAAC":""},{"no":171,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"PENDIENTE","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"","estado":"","comentarioAAC":"","aceptacion":"","revisionAAC":""},{"no":172,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"PENDIENTE","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"","estado":"","comentarioAAC":"","aceptacion":"","revisionAAC":""},{"no":173,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"PENDIENTE","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"","estado":"","comentarioAAC":"","aceptacion":"","revisionAAC":""},{"no":174,"fecha":"","formaReporte":"","reportadoPor":"","entidad":"","texto":"","tipoReporte":"","tipoOcurrencia":"","regulacion":"","normativa":"","causaRaiz":"PENDIENTE","probabilidad":null,"severidad":"","indiceRiesgo":"","acciones":"","responsabilidad":"","seInvestiga":"","seguimientoSMS":"","fechaImpl":"","indiceResultante":"","retroalimentacion":"","numTabulacion":null,"procesadoRSC":"","estado":"","comentarioAAC":"","aceptacion":"","revisionAAC":""}];
+const INITIAL_DATA = []; // Base vacía — los datos se cargan vía importación
 
 const NORMATIVA_DATA = [
   {desc:"CONDICIONES INSEGURAS EN PROYECTOS EN AREAS DE MOVIMIENTO",  aac:19, normAAC:"RAC 139.405  IDENTIFICACIÓN Y SEÑALIZACIÓN DE ÁREAS EN CONSTRUCCIÓN", cepa:36, normCEPA:"MA P5 VIII TRABAJOS EN EL AERÓDROMO SEGURIDAD OPERACIONAL"},
@@ -1700,7 +1723,7 @@ const PROB_DESC = {
 const SEV_DESC = {
   A:'CATASTRÓFICO — Destrucción de equipamiento, muertes múltiples.',
   B:'PELIGROSO — Reducción importante de márgenes de seguridad. Lesiones serias o muertes.',
-  C:'MAYOR — Reducción significativa de márgenes de seguridad. Incidente serio.',
+  C:'GRAVE — Reducción significativa de márgenes de seguridad. Incidente serio.',
   D:'MENOR — Interferencia. Limitaciones operativas. Incidentes menores.',
   E:'INSIGNIFICANTE — Consecuencias leves.'
 };
@@ -1727,7 +1750,7 @@ const RISK_CSS   = {low:'rc-low',medium:'rc-medium',critical:'rc-critical'};
 // APP STATE
 // ═══════════════════════════════════════════════
 // ─── PERSISTENCIA LOCAL Y SISTEMA DE VERSIONES ──────────────────────────────
-const DB_STORAGE_KEY   = 'sigerpro_db_v1';
+const DB_STORAGE_KEY   = 'sigerpro_db_v2';
 const CEPA_LOGO_B64 = 'data:image/png;base64,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';
 
 const SNAP_INDEX_KEY   = 'sigerpro_snapshots_idx';
@@ -1943,7 +1966,7 @@ function escHtml(str) {
 // Open snapshot list modal → render fresh list
 // Snapshot list renders on openModal('m-snapshots')
 
-let DB = loadDB() || JSON.parse(JSON.stringify(INITIAL_DATA.filter(r=>r.fecha)));
+let DB = loadDB() || []; // Sin datos de ejemplo — se importan desde Excel/CSV
 let HISTORICAL_DB = loadHistoricalDB(); // { "2024": [...records], "2023": [...records], ... }
 
 // ── AUTOSAVE: cada 60 segundos si hay sesión activa ────────────────────────
@@ -2006,7 +2029,7 @@ function doLogin() {
   if (user) {
     currentUser = user;
     // Reload DB from localStorage to ensure persisted data is active
-    DB = loadDB() || JSON.parse(JSON.stringify(INITIAL_DATA.filter(r=>r.fecha)));
+    DB = loadDB() || [];
     HISTORICAL_DB = loadHistoricalDB();
     // Mostrar indicador de guardado
     const ind = document.getElementById('autosave-indicator');
@@ -2395,63 +2418,79 @@ function drawGauge(canvas, value, maxVal, label) {
   const W = canvas.width, H = canvas.height;
   ctx.clearRect(0,0,W,H);
 
-  const cx = W/2, cy = H*0.72;
-  const R = Math.min(W, H) * 0.40;
-  const startA = Math.PI, endA = 2*Math.PI;
-  const pct = Math.min(value / maxVal, 1);
-  const arcW = 20;
+  // Centro en 72% de la altura para que el arco ocupe toda la parte superior
+  const cx   = W / 2;
+  const cy   = H * 0.74;
+  // Radio: limitado por ancho y altura disponible con margen para ticks+labels
+  const R    = Math.min(W * 0.42, cy * 0.88);
+  const arcW = Math.max(10, R * 0.13);  // grosor proporcional al radio
 
-  // Zones per ICAO: green 0-30%, yellow 30-70%, red 70-100%
+  const startA = Math.PI, endA = 2 * Math.PI;
+  const pct    = Math.min(value / maxVal, 1);
+
+  // Zonas de color OACI: verde 0-30%, amarillo 30-70%, rojo 70-100%
   const zones = [
-    {s:0,   e:0.30, c:'#22c55e'},   // ACEPTABLE
-    {s:0.30,e:0.70, c:'#eab308'},   // TOLERABLE
-    {s:0.70,e:1.00, c:'#dc2626'}    // INTOLERABLE
+    { s: 0,    e: 0.30, c: '#22c55e' },
+    { s: 0.30, e: 0.70, c: '#eab308' },
+    { s: 0.70, e: 1.00, c: '#dc2626' }
   ];
   zones.forEach(z => {
     ctx.beginPath();
-    ctx.arc(cx,cy,R, startA+z.s*Math.PI, startA+z.e*Math.PI);
-    ctx.lineWidth=arcW; ctx.strokeStyle=z.c;
-    ctx.lineCap='butt'; ctx.stroke();
+    ctx.arc(cx, cy, R, startA + z.s * Math.PI, startA + z.e * Math.PI);
+    ctx.lineWidth   = arcW;
+    ctx.strokeStyle = z.c;
+    ctx.lineCap     = 'butt';
+    ctx.stroke();
   });
 
-  // Tick marks and labels
-  const ticks = 10;
-  for(let i=0; i<=ticks; i++){
-    const a = startA + (i/ticks)*Math.PI;
-    const major = i%5===0;
-    const ir = R - (major?14:8);
-    const or = R + (major?5:3);
+  // Tick marks y etiquetas proporcionales
+  const ticks    = 10;
+  const fontSize = Math.max(6, R * 0.095);
+  for (let i = 0; i <= ticks; i++) {
+    const a     = startA + (i / ticks) * Math.PI;
+    const major = i % 5 === 0;
+    const ir    = R - arcW / 2 - (major ? R * 0.09 : R * 0.05);
+    const or    = R + arcW / 2 + (major ? R * 0.06 : R * 0.03);
     ctx.beginPath();
-    ctx.moveTo(cx+ir*Math.cos(a), cy+ir*Math.sin(a));
-    ctx.lineTo(cx+or*Math.cos(a), cy+or*Math.sin(a));
-    ctx.lineWidth = major?2:1;
-    ctx.strokeStyle = '#444'; ctx.stroke();
+    ctx.moveTo(cx + ir * Math.cos(a), cy + ir * Math.sin(a));
+    ctx.lineTo(cx + or * Math.cos(a), cy + or * Math.sin(a));
+    ctx.lineWidth   = major ? 2 : 1;
+    ctx.strokeStyle = '#444';
+    ctx.stroke();
     if (major) {
-      const tr = R + 16;
-      const lv = (maxVal * i/ticks).toFixed(2);
-      ctx.fillStyle='#555'; ctx.font='bold 7.5px sans-serif';
-      ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.fillText(lv, cx+tr*Math.cos(a), cy+tr*Math.sin(a));
+      const tr = R + arcW / 2 + R * 0.17;
+      const lv = (maxVal * i / ticks).toFixed(1);
+      ctx.fillStyle    = '#555';
+      ctx.font         = `bold ${fontSize}px sans-serif`;
+      ctx.textAlign    = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(lv, cx + tr * Math.cos(a), cy + tr * Math.sin(a));
     }
   }
 
-  // Needle
-  const needleA = startA + pct*Math.PI;
-  const nLen = R*0.70;
+  // Aguja
+  const needleA = startA + pct * Math.PI;
+  const nLen    = R * 0.72;
+  const nBase   = Math.max(3, R * 0.045);
   ctx.save();
-  ctx.translate(cx,cy);
+  ctx.translate(cx, cy);
   ctx.rotate(needleA);
   ctx.beginPath();
-  ctx.moveTo(-10,0); ctx.lineTo(0,-3.5);
-  ctx.lineTo(nLen,0); ctx.lineTo(0,3.5); ctx.closePath();
-  ctx.fillStyle='#1a2540'; ctx.fill();
+  ctx.moveTo(-nBase * 2, 0);
+  ctx.lineTo(0, -nBase);
+  ctx.lineTo(nLen, 0);
+  ctx.lineTo(0, nBase);
+  ctx.closePath();
+  ctx.fillStyle = '#1a2540';
+  ctx.fill();
   ctx.restore();
 
-  // Center hub
-  ctx.beginPath(); ctx.arc(cx,cy,7,0,Math.PI*2);
-  ctx.fillStyle='#1a2540'; ctx.fill();
-  ctx.beginPath(); ctx.arc(cx,cy,4,0,Math.PI*2);
-  ctx.fillStyle='#C9A227'; ctx.fill();
+  // Centro hub
+  const hubR = Math.max(5, R * 0.09);
+  ctx.beginPath(); ctx.arc(cx, cy, hubR, 0, Math.PI * 2);
+  ctx.fillStyle = '#1a2540'; ctx.fill();
+  ctx.beginPath(); ctx.arc(cx, cy, hubR * 0.55, 0, Math.PI * 2);
+  ctx.fillStyle = '#C9A227'; ctx.fill();
 }
 
 // ── INDICATOR STATE ─────────────────────────────────────────────────────────
@@ -2520,7 +2559,9 @@ function _restoreIndPrefs(prefs) {
 function _indPopulateQty(sec, typesObj) {
   const sel = document.getElementById('qty-'+sec);
   if (!sel) return;
-  const max = Object.keys(typesObj).length;
+  // El máximo de indicadores a mostrar es el total de TODOS los tipos en la base
+  const allTotal = Object.keys(_indState && _indState.allTypes ? _indState.allTypes : typesObj).length;
+  const max = allTotal || Object.keys(typesObj).length;
   sel.innerHTML = '<option value="0">— Seleccionar —</option>';
   for (var i = 1; i <= max; i++) {
     var o = document.createElement('option');
@@ -2538,9 +2579,10 @@ function _indPopulateQty(sec, typesObj) {
 // ── Step 2: user chose a quantity → render individual dropdowns ───────────────
 function indSetQty(sec, silent) {
   var qty = parseInt(document.getElementById('qty-'+sec).value) || 0;
-  var typesObj = sec === 'alto' ? _indState.altoTypes : _indState.bajoTypes;
-  var entries  = Object.entries(typesObj).sort(function(a,b){ return b[1]-a[1]; });
-  var total    = entries.length;
+  // Usar TODOS los tipos disponibles en ambas secciones
+  var allEntries = Object.entries(_indState.allTypes || _indState.altoTypes || {})
+                         .sort(function(a,b){ return b[1]-a[1]; });
+  var total    = allEntries.length;
   var slotsEl  = document.getElementById('slots-'+sec);
   slotsEl.innerHTML = '';
 
@@ -2568,12 +2610,15 @@ function indSetQty(sec, silent) {
     var sel = document.createElement('select');
     sel.id = 'ind-slot-'+sec+'-'+i;
     sel.innerHTML = '<option value="">— Elige un indicador —</option>';
-    entries.forEach(function(kv) {
+
+    // Lista única con todos los indicadores ordenados por frecuencia (sin separadores de grupo)
+    allEntries.forEach(function(kv) {
       var o = document.createElement('option');
       o.value = kv[0];
       o.textContent = kv[0] + ' (' + kv[1] + ')';
       sel.appendChild(o);
     });
+
     (function(s, slotSel){
       slotSel.addEventListener('change', function(){
         _indRender(s);
@@ -2595,8 +2640,9 @@ function indSetQty(sec, silent) {
 
 // ── Step 3: read slots and render gauges ─────────────────────────────────────
 function _indRender(sec) {
-  var typesObj = sec === 'alto' ? _indState.altoTypes : _indState.bajoTypes;
-  var total    = Object.keys(typesObj).length;
+  // Usar allTypes para poder renderizar cualquier indicador sin importar su categoría
+  var allTypesObj = _indState.allTypes || _indState.altoTypes || {};
+  var total    = Object.keys(allTypesObj).length;
   var qty      = parseInt(document.getElementById('qty-'+sec).value) || 0;
   var chosen   = [];
 
@@ -2615,24 +2661,35 @@ function _indRender(sec) {
   el.innerHTML = '';
   var isDetail = chosen.length === 1;
   chosen.forEach(function(tipo) {
-    var cnt = typesObj[tipo];
+    var cnt = allTypesObj[tipo];
     if (!cnt) return;
     var rate = cnt / _indState.total;
     var uid  = 'g_' + Math.random().toString(36).substring(2,8);
-    var labelShort = tipo.length > 38 ? tipo.substring(0,36) + '…' : tipo;
+    var labelShort = tipo.length > 42 ? tipo.substring(0,40) + '…' : tipo;
     var card = document.createElement('div');
     card.className = 'gauge-card';
-    card.style.minWidth = isDetail ? '220px' : '170px';
-    card.style.maxWidth = isDetail ? '260px' : '200px';
     if (isDetail) card.style.boxShadow = '0 4px 18px rgba(0,32,91,.12)';
     card.innerHTML =
       '<div class="gauge-value-box">' + rate.toFixed(2) + '</div>' +
-      '<div class="gauge-wrap"><canvas id="' + uid + '" width="' + (isDetail?200:170) + '" height="' + (isDetail?120:100) + '"></canvas></div>' +
+      '<div class="gauge-wrap"><canvas id="' + uid + '"></canvas></div>' +
       '<div style="font-size:9.5px;color:#888;margin:2px 0">' + cnt + ' evento' + (cnt!==1?'s':'') + ' / ' + _indState.total + ' total</div>' +
-      '<div class="gauge-label" title="' + tipo + '" style="font-size:' + (isDetail?'11px':'10px') + ';line-height:1.3">' + (isDetail?tipo:labelShort) + '</div>' +
+      '<div class="gauge-label" title="' + tipo + '" style="font-size:' + (isDetail?'11px':'10px') + ';line-height:1.3;width:100%">' + tipo + '</div>' +
       _buildFreqTable(tipo, cnt);
     el.appendChild(card);
-    (function(u,c){ setTimeout(function(){ var cv=document.getElementById(u); if(cv) drawGauge(cv,c,_indState.maxGauge); }, 60); })(uid, cnt);
+
+    // Dibujar canvas después de que el DOM calcule el ancho real de la tarjeta
+    (function(canvasId, cntVal) {
+      setTimeout(function() {
+        var cv = document.getElementById(canvasId);
+        if (!cv) return;
+        var cardEl = cv.closest('.gauge-card');
+        var cardW = cardEl ? (cardEl.clientWidth - 28) : 260; // descontar padding
+        var cardH = Math.round(cardW * 0.58); // proporción semicírculo óptima
+        cv.width  = cardW;
+        cv.height = cardH;
+        drawGauge(cv, cntVal, _indState.maxGauge);
+      }, 80);
+    })(uid, cnt);
   });
 
   _indUpdateBadge(sec, chosen.length, total);
@@ -2677,15 +2734,19 @@ function calcIndicadorStats(tipo) {
   const values = Object.values(monthlyCounts);
   if (values.length < 2) return null;
 
-  const n = values.length;
+  const n    = values.length;
   const mean = values.reduce((s, v) => s + v, 0) / n;
   const variance = values.reduce((s, v) => s + Math.pow(v - mean, 2), 0) / n;
-  const std = Math.sqrt(variance);
-  const ucl = mean + 2 * std;
-  const lcl = Math.max(0, mean - 2 * std);
+  const std  = Math.sqrt(variance);
+
+  // Tres niveles de desviación estándar (solo hacia arriba — indicadores de desempeño)
+  const s1 = mean + 1 * std;   // Prom + 1DVSTD  → Atención
+  const s2 = mean + 2 * std;   // Prom + 2DVSTD  → Alerta
+  const s3 = mean + 3 * std;   // Prom + 3DVSTD  → Crítico
+
   const years = Object.keys(HISTORICAL_DB).length + 1; // +1 año actual
 
-  return { mean, std, n, ucl, lcl, years, monthlyCounts };
+  return { mean, std, n, s1, s2, s3, years, monthlyCounts };
 }
 
 function _buildFreqTable(tipo, cnt) {
@@ -2700,13 +2761,24 @@ function _buildFreqTable(tipo, cnt) {
     </tr>`;
   }).join('');
 
-  // Estadísticas históricas
+  // Estadísticas históricas con tres niveles σ
   const stats = calcIndicadorStats(tipo);
   let statsHtml = '';
   if (stats) {
     const histYears = Object.keys(HISTORICAL_DB);
-    const sigmaColor = cnt > stats.ucl ? '#dc2626' : cnt < stats.lcl ? '#2563eb' : '#16a34a';
-    const sigmaLabel = cnt > stats.ucl ? '⚠ SOBRE UCL' : cnt < stats.lcl ? '↓ BAJO LCL' : '✓ EN CONTROL';
+
+    // Determinar nivel de alerta según los tres umbrales
+    let nivelColor, nivelLabel, nivelBg;
+    if (cnt > stats.s3) {
+      nivelColor = '#7f1d1d'; nivelBg = '#991b1b'; nivelLabel = '🔴 CRÍTICO — Supera Prom+3σ';
+    } else if (cnt > stats.s2) {
+      nivelColor = '#7c2d12'; nivelBg = '#c2410c'; nivelLabel = '🟠 ALERTA — Supera Prom+2σ';
+    } else if (cnt > stats.s1) {
+      nivelColor = '#713f12'; nivelBg = '#ca8a04'; nivelLabel = '🟡 ATENCIÓN — Supera Prom+1σ';
+    } else {
+      nivelColor = '#14532d'; nivelBg = '#16a34a'; nivelLabel = '🟢 NORMAL — Dentro de Prom+1σ';
+    }
+
     statsHtml = `
     <div style="margin-top:8px;border:1px solid #c7d2fe;border-radius:5px;overflow:hidden;font-size:9.5px">
       <div style="background:#3730a3;padding:3px 6px;display:flex;align-items:center;gap:4px">
@@ -2714,16 +2786,34 @@ function _buildFreqTable(tipo, cnt) {
         <span style="margin-left:auto;background:rgba(255,255,255,.2);border-radius:8px;padding:1px 5px;font-size:8.5px;color:#e0e7ff">${stats.years} año${stats.years!==1?'s':''} · ${stats.n} meses</span>
       </div>
       <table style="width:100%;border-collapse:collapse">
-        <tr style="border-bottom:1px solid #e0e7ff"><td style="padding:2px 6px;font-size:9.5px;color:#3730a3;font-weight:700">Media (μ)</td><td style="padding:2px 6px;font-size:9.5px;text-align:right;font-family:monospace;font-weight:700;color:#1a2540">${stats.mean.toFixed(2)}</td></tr>
-        <tr style="border-bottom:1px solid #e0e7ff;background:#f5f3ff"><td style="padding:2px 6px;font-size:9.5px;color:#3730a3;font-weight:700">Desv. Est. (σ)</td><td style="padding:2px 6px;font-size:9.5px;text-align:right;font-family:monospace;font-weight:700;color:#1a2540">${stats.std.toFixed(2)}</td></tr>
-        <tr style="border-bottom:1px solid #e0e7ff"><td style="padding:2px 6px;font-size:9.5px;color:#dc2626;font-weight:700">UCL (μ+2σ)</td><td style="padding:2px 6px;font-size:9.5px;text-align:right;font-family:monospace;font-weight:700;color:#dc2626">${stats.ucl.toFixed(2)}</td></tr>
-        <tr style="border-bottom:1px solid #e0e7ff;background:#f5f3ff"><td style="padding:2px 6px;font-size:9.5px;color:#2563eb;font-weight:700">LCL (μ-2σ)</td><td style="padding:2px 6px;font-size:9.5px;text-align:right;font-family:monospace;font-weight:700;color:#2563eb">${stats.lcl.toFixed(2)}</td></tr>
+        <tr style="border-bottom:1px solid #e0e7ff">
+          <td style="padding:2px 6px;font-size:9.5px;color:#3730a3;font-weight:700">Promedio (μ)</td>
+          <td style="padding:2px 6px;font-size:9.5px;text-align:right;font-family:monospace;font-weight:700;color:#1a2540">${stats.mean.toFixed(2)}</td>
+        </tr>
+        <tr style="border-bottom:1px solid #e0e7ff;background:#f5f3ff">
+          <td style="padding:2px 6px;font-size:9.5px;color:#3730a3;font-weight:700">Desv. Est. (σ)</td>
+          <td style="padding:2px 6px;font-size:9.5px;text-align:right;font-family:monospace;font-weight:700;color:#1a2540">${stats.std.toFixed(2)}</td>
+        </tr>
+        <tr style="border-bottom:1px solid #e0e7ff">
+          <td style="padding:2px 6px;font-size:9.5px;font-weight:700;color:#16a34a">Prom + 1DVSTD</td>
+          <td style="padding:2px 6px;font-size:9.5px;text-align:right;font-family:monospace;font-weight:700;color:#16a34a">${stats.s1.toFixed(2)}</td>
+        </tr>
+        <tr style="border-bottom:1px solid #e0e7ff;background:#f5f3ff">
+          <td style="padding:2px 6px;font-size:9.5px;font-weight:700;color:#ca8a04">Prom + 2DVSTD</td>
+          <td style="padding:2px 6px;font-size:9.5px;text-align:right;font-family:monospace;font-weight:700;color:#ca8a04">${stats.s2.toFixed(2)}</td>
+        </tr>
+        <tr style="border-bottom:1px solid #e0e7ff">
+          <td style="padding:2px 6px;font-size:9.5px;font-weight:700;color:#dc2626">Prom + 3DVSTD</td>
+          <td style="padding:2px 6px;font-size:9.5px;text-align:right;font-family:monospace;font-weight:700;color:#dc2626">${stats.s3.toFixed(2)}</td>
+        </tr>
       </table>
-      <div style="background:${sigmaColor};padding:2px 6px;display:flex;justify-content:space-between;align-items:center">
-        <span style="color:#fff;font-weight:800;font-size:9px">${sigmaLabel}</span>
-        <span style="color:rgba(255,255,255,.85);font-size:8.5px">Actual: ${cnt}</span>
+      <div style="background:${nivelBg};padding:3px 6px;display:flex;justify-content:space-between;align-items:center">
+        <span style="color:#fff;font-weight:800;font-size:8.5px">${nivelLabel}</span>
+        <span style="color:rgba(255,255,255,.9);font-size:8.5px;font-family:monospace;font-weight:700">Actual: ${cnt}</span>
       </div>
-      ${histYears.length ? `<div style="background:#eef2ff;padding:2px 6px;font-size:8.5px;color:#4338ca">Años históricos: ${histYears.sort().join(', ')}</div>` : `<div style="background:#fef3c7;padding:2px 6px;font-size:8px;color:#92400e">⚡ Carga años anteriores en "Datos Históricos" para mejorar el análisis</div>`}
+      ${histYears.length
+        ? `<div style="background:#eef2ff;padding:2px 6px;font-size:8.5px;color:#4338ca">Años históricos: ${histYears.sort().join(', ')}</div>`
+        : `<div style="background:#fef3c7;padding:2px 6px;font-size:8px;color:#92400e">⚡ Carga años anteriores en "Datos Históricos" para mejorar el análisis</div>`}
     </div>`;
   } else {
     statsHtml = `<div style="margin-top:6px;background:#fef3c7;border:1px solid #fde68a;border-radius:4px;padding:3px 6px;font-size:8.5px;color:#92400e">⚡ Sin suficientes datos para calcular σ. Carga datos históricos.</div>`;
@@ -2766,11 +2856,13 @@ function renderIndicadores() {
   const maxGauge = Math.max(...allCounts, 10);
 
   // Store state for selector-based filtering
-  _indState = { active, total, altoTypes, bajoTypes, maxGauge };
+  // allTypes contiene TODOS los tipos de la base (para que ambas secciones puedan elegir cualquiera)
+  _indState = { active, total, altoTypes, bajoTypes, allTypes: byTipo, maxGauge };
 
   // Initialise quantity selectors (step 1)
-  _indPopulateQty('alto', altoTypes);
-  _indPopulateQty('bajo', bajoTypes);
+  // Ambas secciones usan byTipo completo para el máximo de slots disponibles
+  _indPopulateQty('alto', byTipo);
+  _indPopulateQty('bajo', byTipo);
 
   // Restaurar selecciones guardadas
   _restoreIndPrefs(_loadIndPrefs());
@@ -2971,6 +3063,9 @@ function abrirEditar(idx) {
   if (!r) return;
   const dbIdx = DB.indexOf(r);
   document.getElementById('e-idx').value = dbIdx;
+  // Refrescar listas dinámicas antes de asignar valores
+  _populateTipoSelect('e-tipo', r.tipoOcurrencia||'');
+  _populateTipoReporteSelect('e-tiporeporte', r.tipoReporte||'');
 
   // Identificación
   document.getElementById('e-fecha').value       = r.fecha||'';
@@ -2981,14 +3076,14 @@ function abrirEditar(idx) {
   document.getElementById('e-tiporeporte').value = r.tipoReporte||'';
   document.getElementById('e-texto').value       = r.texto||'';
 
-  // Tipo de ocurrencia — select
+  // Tipo de ocurrencia — select dinámico
   const tipoSel = document.getElementById('e-tipo');
   tipoSel.value = r.tipoOcurrencia||'';
   if (!tipoSel.value && r.tipoOcurrencia) {
-    // Valor no está en la lista: añadir opción dinámica
-    const opt = document.createElement('option');
-    opt.value = r.tipoOcurrencia; opt.textContent = r.tipoOcurrencia;
-    tipoSel.appendChild(opt);
+    // Valor no está en la lista: agregar dinámicamente y persistir
+    const tipos = _loadTiposOcurrencia();
+    if (!tipos.includes(r.tipoOcurrencia)) { tipos.push(r.tipoOcurrencia); _saveTiposOcurrencia(tipos); }
+    _populateTipoSelect('e-tipo', r.tipoOcurrencia);
     tipoSel.value = r.tipoOcurrencia;
   }
 
@@ -3124,7 +3219,7 @@ function imprimirRSC(r, elaborado, revisado, autorizado) {
   const bgR  = riskBg[lvlR] || '#f8fafc';
 
   const probLabels = {1:'Extremadamente Improbable',2:'Improbable',3:'Remoto',4:'Ocasional',5:'Frecuente'};
-  const sevLabels  = {A:'Catastrófico',B:'Peligroso',C:'Mayor',D:'Menor',E:'Insignificante'};
+  const sevLabels  = {A:'Catastrófico',B:'Peligroso',C:'Grave',D:'Menor',E:'Insignificante'};
   const riskLabels = {critical:'INTOLERABLE',medium:'TOLERABLE',low:'ACEPTABLE'};
 
   const field = (label, value, full) => `
@@ -3529,9 +3624,7 @@ function renderNormativa() {
     return `<tr>
       <td class="mono" style="color:var(--cepa-gold);font-weight:600">${i + 1}</td>
       <td style="font-weight:600;font-size:12.5px">${esc(n.desc)}</td>
-      <td class="mono" style="text-align:center;font-weight:700;color:var(--cepa-navy)">${n.aac}</td>
       <td style="font-size:11.5px"><span style="${getStyle(n.normAAC)}">${esc(n.normAAC)}</span></td>
-      <td class="mono" style="text-align:center;font-weight:700;color:var(--cepa-navy)">${n.cepa}</td>
       <td style="font-size:11.5px"><span style="${getStyle(n.normCEPA)}">${esc(n.normCEPA)}</span></td>
     </tr>`;
   }).join('');
@@ -4623,6 +4716,272 @@ function abrirEvidenciasDetalle() {
 let _currentDetalleRecord = null;
 
 // ═══════════════════════════════════════════════
+// TIPOS DINÁMICOS — Tipo de Ocurrencia y Tipo de Reporte
+// ═══════════════════════════════════════════════
+const TIPOS_OCURRENCIA_KEY  = 'sigerpro_tipos_ocurrencia_v1';
+const TIPOS_REPORTE_KEY     = 'sigerpro_tipos_reporte_v1';
+
+// Tipos base de Ocurrencia (hardcoded como punto de partida)
+const TIPOS_OCURRENCIA_BASE = [
+  'CONDICIONES INSEGURAS EN PROYECTOS EN AREAS DE MOVIMIENTO',
+  'DAÑOS A INSTALACIONES AEROPORTUARIAS',
+  'DERRAME DE COMBUSTIBLE EN ÁREA DE MOVIMIENTO',
+  'EQUIPO DE APOYO TERRESTRE EN MAL ESTADO',
+  'FALLA EN PUENTE DE ABORDAJE',
+  'FAUNA EN EL ÁREA DE MOVIMIENTO',
+  'FOD EN PISTA',
+  'ILUMINACIÓN DEFICIENTE',
+  'IMPACTO AVES CONFIRMADOS FUERA DEL AIES-SOARG',
+  'IMPACTOS DE AVES (INCIDENTES INDETERMINADOS)',
+  'IMPACTOS DE AVES CONFIRMADOS',
+  'IMPACTOS DE AVES NO CONFIRMADOS',
+  'IMPACTOS DE FAUNA EN AERONAVES (NO AVES)',
+  'MAL PROCEDIMIENTO DE APOYO TERRESTRE',
+  'MALEZA ALTA EN AREA DE MOVIMIENTO',
+  'SEÑALIZACION HORIZONTAL DEFICIENTE',
+  'SEÑALIZACION VERTICAL DEFICIENTE',
+  'SUCIEDAD Y VEGETACIÓN ALTA EN AREA DE PERIMETRO'
+];
+
+const TIPOS_REPORTE_BASE = [
+  'ACCIDENTE','INCIDENTE','PELIGRO','INCURSION EN PISTA','EXCURSION DE PISTA'
+];
+
+function _loadTiposOcurrencia() {
+  try {
+    const raw = localStorage.getItem(TIPOS_OCURRENCIA_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return [...TIPOS_OCURRENCIA_BASE];
+}
+function _saveTiposOcurrencia(arr) {
+  try { localStorage.setItem(TIPOS_OCURRENCIA_KEY, JSON.stringify(arr)); } catch(e) {}
+}
+function _loadTiposReporte() {
+  try {
+    const raw = localStorage.getItem(TIPOS_REPORTE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return [...TIPOS_REPORTE_BASE];
+}
+function _saveTiposReporte(arr) {
+  try { localStorage.setItem(TIPOS_REPORTE_KEY, JSON.stringify(arr)); } catch(e) {}
+}
+
+// Poblar cualquier <select> de tipo de ocurrencia con la lista actual
+function _populateTipoSelect(selId, currentVal) {
+  const sel = document.getElementById(selId);
+  if (!sel) return;
+  const tipos = _loadTiposOcurrencia().sort();
+  sel.innerHTML = '<option value="">— Seleccionar tipo —</option>' +
+    tipos.map(t => `<option${currentVal && t === currentVal ? ' selected' : ''}>${escHtml(t)}</option>`).join('');
+}
+
+// Poblar cualquier <select> de tipo de reporte con la lista actual
+function _populateTipoReporteSelect(selId, currentVal) {
+  const sel = document.getElementById(selId);
+  if (!sel) return;
+  const tipos = _loadTiposReporte();
+  sel.innerHTML = '<option value="">— Seleccionar —</option>' +
+    tipos.map(t => `<option${currentVal && t === currentVal ? ' selected' : ''}>${escHtml(t)}</option>`).join('');
+}
+
+// Inicializar ambos selects en Nuevo Reporte y Editar
+function _initTipoSelects() {
+  _populateTipoSelect('n-tipo');
+  _populateTipoSelect('e-tipo');
+  _populateTipoReporteSelect('n-tiporeporte');
+  _populateTipoReporteSelect('e-tiporeporte');
+}
+
+// ── Modal para agregar nuevo Tipo de Ocurrencia ──────────────────────────────
+let _addTipoContext = 'nuevo'; // 'nuevo' | 'editar'
+
+function abrirAgregarTipo(ctx) {
+  _addTipoContext = ctx || 'nuevo';
+  document.getElementById('m-add-tipo-err').classList.add('hidden');
+  document.getElementById('m-add-tipo-input').value = '';
+  document.getElementById('m-add-tipo-reg').value = '';
+  document.getElementById('m-add-tipo-norm').value = '';
+  // Poblar lista existente
+  _renderTiposList();
+  openModal('m-add-tipo');
+  setTimeout(() => { const el = document.getElementById('m-add-tipo-input'); if(el) el.focus(); }, 120);
+}
+
+function _renderTiposList() {
+  const tipos = _loadTiposOcurrencia().sort();
+  const container = document.getElementById('m-add-tipo-list');
+  if (!container) return;
+  container.innerHTML = tipos.map((t, i) => `
+    <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
+      <span style="flex:1;font-size:12px;color:var(--text)">${escHtml(t)}</span>
+      ${!TIPOS_OCURRENCIA_BASE.includes(t) ? `<button onclick="_eliminarTipoOcurrencia(${i})" title="Eliminar" style="background:none;border:none;cursor:pointer;color:#dc2626;padding:3px;border-radius:4px;display:flex;align-items:center">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="13" height="13"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>` : '<span style="font-size:9px;color:var(--muted);padding:2px 5px;background:var(--bg3);border-radius:4px">BASE</span>'}
+    </div>`).join('');
+}
+
+function _eliminarTipoOcurrencia(idx) {
+  const tipos = _loadTiposOcurrencia().sort();
+  const tipo = tipos[idx];
+  if (!tipo || TIPOS_OCURRENCIA_BASE.includes(tipo)) return;
+  if (!confirm(`¿Eliminar el tipo "${tipo}"?\n\nSolo se elimina de la lista de selección, no afecta reportes existentes.`)) return;
+  const all = _loadTiposOcurrencia();
+  const pos = all.indexOf(tipo);
+  if (pos >= 0) all.splice(pos, 1);
+  _saveTiposOcurrencia(all);
+  _renderTiposList();
+  _populateTipoSelect('n-tipo');
+  _populateTipoSelect('e-tipo');
+  toast('Tipo de ocurrencia eliminado de la lista.', 'ok');
+}
+
+function guardarNuevoTipo() {
+  const inputEl = document.getElementById('m-add-tipo-input');
+  const regEl   = document.getElementById('m-add-tipo-reg');
+  const normEl  = document.getElementById('m-add-tipo-norm');
+  const errEl   = document.getElementById('m-add-tipo-err');
+  const val     = inputEl.value.trim().toUpperCase();
+  const reg     = regEl.value.trim();
+  const norm    = normEl.value.trim();
+
+  if (!val) {
+    errEl.textContent = 'El nombre del tipo es obligatorio.';
+    errEl.classList.remove('hidden');
+    return;
+  }
+  const tipos = _loadTiposOcurrencia();
+  if (tipos.some(t => t.toUpperCase() === val)) {
+    errEl.textContent = 'Este tipo ya existe en la lista.';
+    errEl.classList.remove('hidden');
+    return;
+  }
+  errEl.classList.add('hidden');
+
+  // Guardar en lista dinámica
+  tipos.push(val);
+  _saveTiposOcurrencia(tipos);
+
+  // Si se proporcionó normativa, agregarla a NORMATIVA_DATA para auto-relleno
+  if (reg || norm) {
+    NORMATIVA_DATA.push({ desc: val, aac: '', normAAC: reg || '', cepa: '', normCEPA: norm || '' });
+  }
+
+  // Refrescar selects
+  _populateTipoSelect('n-tipo', val);
+  _populateTipoSelect('e-tipo', val);
+
+  // Seleccionar el nuevo tipo en el contexto correcto y disparar normativa
+  const targetSel = document.getElementById(_addTipoContext === 'editar' ? 'e-tipo' : 'n-tipo');
+  if (targetSel) {
+    targetSel.value = val;
+    if (_addTipoContext === 'editar') autoFillNormativaEditar(val);
+    else autoFillNormativa(val);
+  }
+
+  _renderTiposList();
+  inputEl.value = '';
+  regEl.value = '';
+  normEl.value = '';
+  toast(`Tipo "${val}" agregado correctamente.`, 'ok');
+  closeModal('m-add-tipo');
+}
+
+// ── Modal para agregar nuevo Tipo de Reporte ─────────────────────────────────
+let _addTipoReporteContext = 'nuevo';
+
+function abrirAgregarTipoReporte(ctx) {
+  _addTipoReporteContext = ctx || 'nuevo';
+  document.getElementById('m-add-tiporeporte-err').classList.add('hidden');
+  document.getElementById('m-add-tiporeporte-input').value = '';
+  _renderTiposReporteList();
+  openModal('m-add-tiporeporte');
+  setTimeout(() => { const el = document.getElementById('m-add-tiporeporte-input'); if(el) el.focus(); }, 120);
+}
+
+function _renderTiposReporteList() {
+  const tipos = _loadTiposReporte();
+  const container = document.getElementById('m-add-tiporeporte-list');
+  if (!container) return;
+  container.innerHTML = tipos.map((t, i) => `
+    <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
+      <span style="flex:1;font-size:12px;color:var(--text)">${escHtml(t)}</span>
+      ${!TIPOS_REPORTE_BASE.includes(t) ? `<button onclick="_eliminarTipoReporte(${i})" title="Eliminar" style="background:none;border:none;cursor:pointer;color:#dc2626;padding:3px;border-radius:4px;display:flex;align-items:center">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="13" height="13"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>` : '<span style="font-size:9px;color:var(--muted);padding:2px 5px;background:var(--bg3);border-radius:4px">BASE</span>'}
+    </div>`).join('');
+}
+
+function _eliminarTipoReporte(idx) {
+  const tipos = _loadTiposReporte();
+  const tipo = tipos[idx];
+  if (!tipo || TIPOS_REPORTE_BASE.includes(tipo)) return;
+  if (!confirm(`¿Eliminar el tipo de reporte "${tipo}"?`)) return;
+  tipos.splice(idx, 1);
+  _saveTiposReporte(tipos);
+  _renderTiposReporteList();
+  _populateTipoReporteSelect('n-tiporeporte');
+  _populateTipoReporteSelect('e-tiporeporte');
+  toast('Tipo de reporte eliminado.', 'ok');
+}
+
+function guardarNuevoTipoReporte() {
+  const inputEl = document.getElementById('m-add-tiporeporte-input');
+  const errEl   = document.getElementById('m-add-tiporeporte-err');
+  const val     = inputEl.value.trim().toUpperCase();
+
+  if (!val) {
+    errEl.textContent = 'El nombre es obligatorio.';
+    errEl.classList.remove('hidden');
+    return;
+  }
+  const tipos = _loadTiposReporte();
+  if (tipos.some(t => t.toUpperCase() === val)) {
+    errEl.textContent = 'Este tipo de reporte ya existe.';
+    errEl.classList.remove('hidden');
+    return;
+  }
+  errEl.classList.add('hidden');
+  tipos.push(val);
+  _saveTiposReporte(tipos);
+
+  _populateTipoReporteSelect('n-tiporeporte', val);
+  _populateTipoReporteSelect('e-tiporeporte', val);
+
+  const targetSel = document.getElementById(_addTipoReporteContext === 'editar' ? 'e-tiporeporte' : 'n-tiporeporte');
+  if (targetSel) targetSel.value = val;
+
+  _renderTiposReporteList();
+  inputEl.value = '';
+  toast(`Tipo de reporte "${val}" agregado.`, 'ok');
+  closeModal('m-add-tiporeporte');
+}
+
+// Redibujar gauges cuando cambia el tamaño de la ventana
+window.addEventListener('resize', function() {
+  ['alto','bajo'].forEach(function(sec) {
+    var el = document.getElementById('gauges-' + sec);
+    if (!el) return;
+    el.querySelectorAll('canvas').forEach(function(cv) {
+      var cardEl = cv.closest('.gauge-card');
+      if (!cardEl) return;
+      var cardW = cardEl.clientWidth - 28;
+      var cardH = Math.round(cardW * 0.58);
+      if (cv.width !== cardW) {
+        cv.width  = cardW;
+        cv.height = cardH;
+        // Recuperar el valor desde el gauge-value-box del mismo card
+        var valBox = cardEl.querySelector('.gauge-value-box');
+        var rate   = valBox ? parseFloat(valBox.textContent) : 0;
+        var cnt    = Math.round(rate * (_indState.total || 1));
+        drawGauge(cv, cnt, _indState.maxGauge || 10);
+      }
+    });
+  });
+});
+
+// ═══════════════════════════════════════════════
 // HAMBURGER — TOGGLE SIDEBAR
 // ═══════════════════════════════════════════════
 function toggleSidebar() {
@@ -4636,6 +4995,7 @@ function toggleSidebar() {
 // INIT
 // ═══════════════════════════════════════════════
 function initApp() {
+  _initTipoSelects(); // Poblar listas dinámicas de tipos
   // Set user info in sidebar footer
   if (currentUser) {
     document.getElementById('sf-user-name').textContent = currentUser.nombre;
@@ -4896,6 +5256,81 @@ function initApp() {
       <button class="btn btn-primary" onclick="document.getElementById('ev-drop-file').click()" style="background:#1e40af">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14" style="margin-right:4px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
         Adjuntar PDF
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL: NUEVO TIPO DE OCURRENCIA ════════════════════════════════════ -->
+<div id="m-add-tipo" class="modal-bg hidden">
+  <div class="modal-box" style="max-width:520px">
+    <div class="modal-head">
+      <h3>➕ Agregar Tipo de Ocurrencia</h3>
+      <button class="modal-x" onclick="closeModal('m-add-tipo')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div style="background:#fefce8;border:1px solid #fde047;border-radius:8px;padding:10px 14px;font-size:12px;color:#92400e;margin-bottom:14px">
+        El nuevo tipo se agregará permanentemente a la lista y estará disponible en todos los formularios. Opcionalmente puedes asociarle una normativa para que se auto-rellene al seleccionarlo.
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nombre del Tipo <span class="req">*</span></label>
+        <input id="m-add-tipo-input" class="form-input" type="text" placeholder="Ej. INCURSIÓN EN PISTA" style="text-transform:uppercase"
+          oninput="document.getElementById('m-add-tipo-err').classList.add('hidden')"
+          onkeydown="if(event.key==='Enter')guardarNuevoTipo()">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Regulación AAC (opcional)</label>
+          <input id="m-add-tipo-reg" class="form-input" type="text" placeholder="Ej. RAC 139.320 ÁREAS PAVIMENTADAS">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Normativa CEPA (opcional)</label>
+          <input id="m-add-tipo-norm" class="form-input" type="text" placeholder="Ej. MA P5 VII MANTENIMIENTO">
+        </div>
+      </div>
+      <div id="m-add-tipo-err" class="hidden" style="color:#dc2626;font-size:11.5px;padding:6px 10px;background:#fef2f2;border-radius:5px;border:1px solid #fecaca;margin-bottom:10px"></div>
+
+      <!-- Lista de tipos existentes -->
+      <div style="margin-top:14px">
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">Tipos actuales en el sistema</div>
+        <div id="m-add-tipo-list" style="max-height:200px;overflow-y:auto;border:1px solid var(--border);border-radius:6px;padding:0 10px"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('m-add-tipo')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarNuevoTipo()" style="background:var(--cepa-gold);color:var(--cepa-navy)">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14" style="margin-right:4px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        Agregar y Seleccionar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL: NUEVO TIPO DE REPORTE ═══════════════════════════════════════ -->
+<div id="m-add-tiporeporte" class="modal-bg hidden">
+  <div class="modal-box" style="max-width:440px">
+    <div class="modal-head">
+      <h3>➕ Agregar Tipo de Reporte</h3>
+      <button class="modal-x" onclick="closeModal('m-add-tiporeporte')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Nombre del Tipo de Reporte <span class="req">*</span></label>
+        <input id="m-add-tiporeporte-input" class="form-input" type="text" placeholder="Ej. EVENTO DE SEGURIDAD" style="text-transform:uppercase"
+          oninput="document.getElementById('m-add-tiporeporte-err').classList.add('hidden')"
+          onkeydown="if(event.key==='Enter')guardarNuevoTipoReporte()">
+      </div>
+      <div id="m-add-tiporeporte-err" class="hidden" style="color:#dc2626;font-size:11.5px;padding:6px 10px;background:#fef2f2;border-radius:5px;border:1px solid #fecaca;margin-bottom:10px"></div>
+      <div style="margin-top:12px">
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">Tipos actuales</div>
+        <div id="m-add-tiporeporte-list" style="max-height:180px;overflow-y:auto;border:1px solid var(--border);border-radius:6px;padding:0 10px"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('m-add-tiporeporte')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarNuevoTipoReporte()" style="background:var(--cepa-teal);color:#fff">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14" style="margin-right:4px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        Agregar y Seleccionar
       </button>
     </div>
   </div>
